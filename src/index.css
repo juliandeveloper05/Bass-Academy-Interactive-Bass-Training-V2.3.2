@@ -79,6 +79,47 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Light Theme */
+[data-theme="light"] {
+  /* Light Color Palette */
+  --color-primary-deep: #F8F5F0;
+  --color-primary-dark: #E8E4DE;
+  --color-primary-medium: #9BA5B4;
+  --color-primary-light: #5C6778;
+  
+  /* Gold Accents (slightly adjusted for light bg) */
+  --color-gold: #B8922E;
+  --color-gold-light: #D4A840;
+  --color-gold-dark: #8F7223;
+  
+  /* Neutral Tones */
+  --color-cream: #1B263B;
+  --color-warm-white: #0D1B2A;
+  --color-charcoal: #E8E4DE;
+  
+  /* Override color scheme */
+  color-scheme: light;
+  
+  /* Glassmorphism for light */
+  --glass-bg: rgba(0, 0, 0, 0.02);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] body {
+  background: linear-gradient(135deg, #F8F5F0 0%, #E8E4DE 50%, #DCD8D0 100%);
+}
+
+[data-theme="light"] .glass {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .glass-strong {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
 /* Global Reset & Base */
 *, *::before, *::after {
   box-sizing: border-box;

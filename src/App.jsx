@@ -14,6 +14,11 @@ import {
   VolumeX,
   Guitar,
   List,
+  Sun,
+  Moon,
+  Pause,
+  Timer,
+  TimerOff,
 } from "lucide-react";
 import Footer from "./components/Footer";
 import FretboardView from "./components/FretboardView";
@@ -37,6 +42,15 @@ const BassTrainer = () => {
   const [isMetronomeEnabled, setIsMetronomeEnabled] = useState(false);
   const [isNotesMuted, setIsNotesMuted] = useState(false); // Mutear notas para practicar solo con metrónomo
   const [viewMode, setViewMode] = useState('tab'); // 'tab' or 'fretboard'
+  const [isCountdownEnabled, setIsCountdownEnabled] = useState(true); // Toggle para activar/desactivar countdown
+  
+  // Theme state with localStorage persistence
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('bass-trainer-theme') || 'dark';
+    }
+    return 'dark';
+  });
 
   // Referencias para el motor de audio (evitan stale closures)
   const audioContextRef = useRef(null);
@@ -45,6 +59,7 @@ const BassTrainer = () => {
   const notesRef = useRef([]); // Almacena la data de las notas
   const playIndexRef = useRef(0); // Índice actual en el motor de audio
   const schedulerRef = useRef(null); // Ref para la función scheduler
+  const countdownTimeoutsRef = useRef([]); // Store countdown timeout IDs
 
   // Refs para valores mutables accedidos por el scheduler
   const tempoRef = useRef(tempo);
@@ -69,6 +84,16 @@ const BassTrainer = () => {
   useEffect(() => {
     isNotesMutedRef.current = isNotesMuted;
   }, [isNotesMuted]);
+
+  // Apply theme to document
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('bass-trainer-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prevTheme => prevTheme === 'dark' ? 'light' : 'dark');
+  };
 
   // Frecuencias base
   const STRING_FREQUENCIES = {
@@ -288,25 +313,40 @@ const BassTrainer = () => {
 
     if (isPlaying || isCountingDown) return;
 
+    // If countdown is disabled, start immediately
+    if (!isCountdownEnabled) {
+      setIsPlaying(true);
+      setCurrentNoteIndex(-1);
+      playIndexRef.current = 0;
+      nextNoteTimeRef.current = ctx.currentTime + 0.1;
+      scheduler();
+      return;
+    }
+
+    // Clear any previous countdown timeouts
+    countdownTimeoutsRef.current.forEach(id => clearTimeout(id));
+    countdownTimeoutsRef.current = [];
+
     // Start countdown
     setIsCountingDown(true);
     setCountdown(3);
     playCountdownBeep();
 
     // Countdown sequence: 3 -> 2 -> 1 -> GO!
-    setTimeout(() => {
+    const timeout1 = setTimeout(() => {
       setCountdown(2);
       playCountdownBeep();
     }, 1000);
 
-    setTimeout(() => {
+    const timeout2 = setTimeout(() => {
       setCountdown(1);
       playCountdownBeep();
     }, 2000);
 
-    setTimeout(() => {
+    const timeout3 = setTimeout(() => {
       setIsCountingDown(false);
       setCountdown(0);
+      countdownTimeoutsRef.current = [];
       playCountdownBeep(true); // Higher pitch for start
       
       // Start playback
@@ -316,9 +356,16 @@ const BassTrainer = () => {
       nextNoteTimeRef.current = ctx.currentTime + 0.1;
       scheduler();
     }, 3000);
+
+    // Store timeout IDs so we can cancel them
+    countdownTimeoutsRef.current = [timeout1, timeout2, timeout3];
   };
 
   const handleStop = () => {
+    // Cancel any pending countdown timeouts
+    countdownTimeoutsRef.current.forEach(id => clearTimeout(id));
+    countdownTimeoutsRef.current = [];
+    
     setIsPlaying(false);
     setIsCountingDown(false);
     setCountdown(0);
@@ -422,8 +469,8 @@ const BassTrainer = () => {
             </p>
           </div>
 
-          {/* Status Indicator */}
-          <div className="flex justify-center">
+          {/* Status Indicator & Theme Toggle */}
+          <div className="flex justify-center items-center gap-3 sm:gap-4">
             <div 
               className={`
                 glass px-3 sm:px-5 py-1.5 sm:py-2 rounded-full flex items-center gap-2 sm:gap-3
@@ -440,6 +487,24 @@ const BassTrainer = () => {
               </span>
               <Music className={`w-3 h-3 sm:w-4 sm:h-4 ${isCountingDown ? "text-[var(--color-warning)]" : isPlaying ? "text-[var(--color-success)]" : "text-[var(--color-primary-light)]"}`} />
             </div>
+
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className="glass px-3 sm:px-4 py-1.5 sm:py-2 rounded-full flex items-center gap-2 
+                       border border-[var(--color-primary-medium)] hover:border-[var(--color-gold)]
+                       transition-all duration-300 hover:scale-105 active:scale-95 group"
+              aria-label={theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
+            >
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--color-gold)] group-hover:rotate-45 transition-transform duration-300" />
+              ) : (
+                <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--color-gold)] group-hover:-rotate-12 transition-transform duration-300" />
+              )}
+              <span className="text-xs sm:text-sm font-medium text-[var(--color-cream)] hidden sm:inline">
+                {theme === 'dark' ? 'Claro' : 'Oscuro'}
+              </span>
+            </button>
           </div>
         </header>
 
@@ -458,6 +523,19 @@ const BassTrainer = () => {
               >
                 {countdown}
               </div>
+              
+              {/* Stop Button during Countdown */}
+              <button
+                onClick={handleStop}
+                className="mt-8 group relative bg-gradient-to-r from-[var(--color-error)] to-red-400 
+                         text-white px-8 sm:px-10 py-3 sm:py-4 rounded-2xl font-bold 
+                         flex items-center gap-3 transition-all duration-300 
+                         hover:shadow-[0_0_30px_var(--color-error)/40] hover:scale-105
+                         active:scale-95 text-base sm:text-lg mx-auto"
+              >
+                <Pause className="w-5 h-5 sm:w-6 sm:h-6" />
+                <span>CANCELAR</span>
+              </button>
             </div>
           </div>
         )}
@@ -834,8 +912,8 @@ const BassTrainer = () => {
                 )}
               </div>
 
-              {/* Toggle Buttons - 3 Columns on Mobile, Better Touch Targets */}
-              <div className="grid grid-cols-3 gap-2 sm:flex sm:justify-center sm:gap-4">
+              {/* Toggle Buttons - 4 Columns on Mobile, Better Touch Targets */}
+              <div className="grid grid-cols-4 gap-2 sm:flex sm:justify-center sm:gap-4">
                 {/* Loop Toggle */}
                 <button
                   onClick={() => setIsLooping(!isLooping)}
@@ -897,6 +975,30 @@ const BassTrainer = () => {
                     <VolumeX className="w-5 h-5 sm:w-5 sm:h-5" />
                   )}
                   <span className="text-[10px] sm:text-sm font-semibold">{isMetronomeEnabled ? "ON" : "OFF"}</span>
+                </button>
+
+                {/* Countdown Toggle */}
+                <button
+                  onClick={() => setIsCountdownEnabled(!isCountdownEnabled)}
+                  className={`
+                    flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2
+                    px-3 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-medium
+                    transition-all duration-300 border-2 text-xs sm:text-base
+                    min-h-[60px] sm:min-h-0
+                    ${
+                      isCountdownEnabled
+                        ? "bg-[var(--color-gold)]/20 border-[var(--color-gold)] text-[var(--color-gold)]"
+                        : "bg-[var(--color-primary-dark)] border-[var(--color-primary-medium)] text-[var(--color-primary-light)] hover:border-[var(--color-primary-light)]"
+                    }
+                  `}
+                  title={isCountdownEnabled ? "Countdown 3-2-1 activado" : "Sin countdown, inicio directo"}
+                >
+                  {isCountdownEnabled ? (
+                    <Timer className="w-5 h-5 sm:w-5 sm:h-5" />
+                  ) : (
+                    <TimerOff className="w-5 h-5 sm:w-5 sm:h-5" />
+                  )}
+                  <span className="text-[10px] sm:text-sm font-semibold">3-2-1</span>
                 </button>
               </div>
             </div>
