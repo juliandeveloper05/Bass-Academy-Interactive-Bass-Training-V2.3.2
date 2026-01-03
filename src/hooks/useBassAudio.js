@@ -62,6 +62,20 @@ export function useBassAudio() {
     return serviceRef.current.isReady;
   }, []);
   
+  /**
+   * Set bass volume in real-time (0.0 - 1.0)
+   */
+  const setBassVolume = useCallback((volume) => {
+    serviceRef.current.setBassVolume(volume);
+  }, []);
+  
+  /**
+   * Set metronome volume in real-time (0.0 - 1.0)
+   */
+  const setMetronomeVolume = useCallback((volume) => {
+    serviceRef.current.setMetronomeVolume(volume);
+  }, []);
+  
   return {
     resume,
     getCurrentTime,
@@ -69,8 +83,11 @@ export function useBassAudio() {
     playMetronomeClick,
     playCountdownBeep,
     isReady,
+    setBassVolume,
+    setMetronomeVolume,
     serviceRef,
   };
 }
 
 export default useBassAudio;
+

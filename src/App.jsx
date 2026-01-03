@@ -166,6 +166,17 @@ const BassTrainer = () => {
     actions.stop();
   }, [scheduler, actions]);
 
+  // Volume handlers - update both state and AudioService in real-time
+  const handleBassVolume = useCallback((volume) => {
+    actions.setBassVolume(volume);
+    audio.setBassVolume(volume);
+  }, [actions, audio]);
+
+  const handleMetronomeVolume = useCallback((volume) => {
+    actions.setMetronomeVolume(volume);
+    audio.setMetronomeVolume(volume);
+  }, [actions, audio]);
+
   const {
     isPlaying,
     isCountingDown,
@@ -373,9 +384,9 @@ const BassTrainer = () => {
           tempo={tempo}
           setTempo={actions.setTempo}
           bassVolume={playerState.bassVolume}
-          setBassVolume={actions.setBassVolume}
+          setBassVolume={handleBassVolume}
           metronomeVolume={playerState.metronomeVolume}
-          setMetronomeVolume={actions.setMetronomeVolume}
+          setMetronomeVolume={handleMetronomeVolume}
         />
 
         {!isAudioReady && (

@@ -1,7 +1,7 @@
 /**
  * Audio Service - Bass Trainer
  * Sample-based audio playback using Web Audio API
- * Loads and plays real audio samples instead of oscillators
+ * Uses master gain nodes for real-time volume control
  */
 
 import { STRING_FREQUENCIES, SAMPLE_PATHS, SAMPLE_CONFIG } from '../config/audioConfig.js';
@@ -19,6 +19,12 @@ class AudioService {
       },
     };
     
+    // Master gain nodes for real-time volume control
+    this.masterGains = {
+      bass: null,
+      metronome: null,
+    };
+    
     this.samplesLoaded = false;
   }
 
@@ -29,6 +35,15 @@ class AudioService {
     if (!this.context) {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       this.context = new AudioContext();
+      
+      // Create master gain nodes
+      this.masterGains.bass = this.context.createGain();
+      this.masterGains.bass.gain.value = 0.7;
+      this.masterGains.bass.connect(this.context.destination);
+      
+      this.masterGains.metronome = this.context.createGain();
+      this.masterGains.metronome.gain.value = 0.5;
+      this.masterGains.metronome.connect(this.context.destination);
     }
     return this.context;
   }
@@ -60,6 +75,7 @@ class AudioService {
       this.isReady = false;
       this.samplesLoaded = false;
       this.buffers = { bass: null, metronome: { click: null } };
+      this.masterGains = { bass: null, metronome: null };
     }
   }
 
@@ -68,6 +84,24 @@ class AudioService {
    */
   get currentTime() {
     return this.context ? this.context.currentTime : 0;
+  }
+
+  /**
+   * Set bass volume in real-time (0.0 - 1.0)
+   */
+  setBassVolume(volume) {
+    if (this.masterGains.bass) {
+      this.masterGains.bass.gain.value = volume;
+    }
+  }
+
+  /**
+   * Set metronome volume in real-time (0.0 - 1.0)
+   */
+  setMetronomeVolume(volume) {
+    if (this.masterGains.metronome) {
+      this.masterGains.metronome.gain.value = volume;
+    }
   }
 
   /**
@@ -100,23 +134,17 @@ class AudioService {
       return;
     }
 
-    console.log('🎵 Loading samples from:', SAMPLE_PATHS);
-
     try {
       // Load bass sample
-      console.log('Loading bass sample:', SAMPLE_PATHS.bass);
       this.buffers.bass = await this.loadSample(SAMPLE_PATHS.bass);
-      console.log('Bass sample loaded:', this.buffers.bass ? '✅ OK' : '❌ FAILED');
       
       // Load metronome click sample
-      console.log('Loading metronome sample:', SAMPLE_PATHS.metronome.click);
       this.buffers.metronome.click = await this.loadSample(SAMPLE_PATHS.metronome.click);
-      console.log('Metronome sample loaded:', this.buffers.metronome.click ? '✅ OK' : '❌ FAILED');
       
       this.samplesLoaded = true;
-      console.log('🎵 All audio samples loaded successfully!');
+      console.log('🎵 Audio samples loaded successfully');
     } catch (error) {
-      console.error('❌ Error loading samples:', error);
+      console.error('Error loading samples:', error);
     }
   }
 
@@ -126,29 +154,22 @@ class AudioService {
    * @param {number} fret - Fret number
    * @param {number} time - Scheduled time
    * @param {boolean} muted - If true, skip playing
-   * @param {number} volume - Volume level (0.0 - 1.0)
    */
-  playSound(string, fret, time, muted = false, volume = 0.7) {
+  playSound(string, fret, time, muted = false) {
     if (!this.context || muted) return;
 
     // If sample is loaded, use it
     if (this.buffers.bass) {
-      this.playSampleNote(string, fret, time, volume);
-    } else {
-      console.warn('⚠️ Bass sample not loaded, no sound will play');
+      this.playSampleNote(string, fret, time);
     }
-    // No fallback - samples are required
   }
 
   /**
    * Play bass sample with pitch adjustment
-   * @param {string} string - String name
-   * @param {number} fret - Fret number
-   * @param {number} time - Scheduled time
-   * @param {number} volume - Volume level (0.0 - 1.0)
+   * Volume is controlled by master gain node in real-time
    */
-  playSampleNote(string, fret, time, volume = 0.7) {
-    if (!this.buffers.bass) return;
+  playSampleNote(string, fret, time) {
+    if (!this.buffers.bass || !this.masterGains.bass) return;
 
     const { bass: bassConfig } = SAMPLE_CONFIG;
     
@@ -157,7 +178,6 @@ class AudioService {
     const targetFreq = baseFreq * Math.pow(2, fret / 12);
     
     // Calculate playback rate based on sample's base frequency
-    // This shifts the pitch of the sample
     const playbackRate = targetFreq / bassConfig.baseFrequency;
 
     // Create buffer source
@@ -165,17 +185,15 @@ class AudioService {
     source.buffer = this.buffers.bass;
     source.playbackRate.setValueAtTime(playbackRate, time);
 
-    // Create gain node for volume - use provided volume parameter
-    const gainNode = this.context.createGain();
-    gainNode.gain.setValueAtTime(volume, time);
-    
-    // Envelope for natural decay
-    gainNode.gain.linearRampToValueAtTime(volume, time + 0.05);
-    gainNode.gain.exponentialRampToValueAtTime(0.001, time + 0.5);
+    // Create envelope gain node (for attack/release shape)
+    const envelopeGain = this.context.createGain();
+    envelopeGain.gain.setValueAtTime(0, time);
+    envelopeGain.gain.linearRampToValueAtTime(1, time + 0.05);
+    envelopeGain.gain.exponentialRampToValueAtTime(0.001, time + 0.5);
 
-    // Connect nodes
-    source.connect(gainNode);
-    gainNode.connect(this.context.destination);
+    // Connect: source -> envelope -> master gain -> destination
+    source.connect(envelopeGain);
+    envelopeGain.connect(this.masterGains.bass);
 
     // Play
     source.start(time);
@@ -188,56 +206,47 @@ class AudioService {
    * @param {boolean} isDownbeat - First beat of measure
    * @param {boolean} isFirstOfBeat - First triplet of beat
    * @param {boolean} enabled - If false, skip playing
-   * @param {number} masterVolume - Master volume level (0.0 - 1.0)
    */
-  playMetronomeClick(time, isDownbeat, isFirstOfBeat, enabled = true, masterVolume = 0.5) {
+  playMetronomeClick(time, isDownbeat, isFirstOfBeat, enabled = true) {
     if (!this.context || !enabled) return;
 
     // If sample is loaded, use it
     if (this.buffers.metronome.click) {
-      this.playSampleMetronome(time, isDownbeat, isFirstOfBeat, masterVolume);
+      this.playSampleMetronome(time, isDownbeat, isFirstOfBeat);
     }
-    // No fallback - samples are required
   }
 
   /**
-   * Play metronome sample with volume adjustment
-   * @param {number} time - Scheduled time
-   * @param {boolean} isDownbeat - Is downbeat
-   * @param {boolean} isFirstOfBeat - First triplet of beat
-   * @param {number} masterVolume - Master volume level (0.0 - 1.0)
+   * Play metronome sample
+   * Volume is controlled by master gain node in real-time
    */
-  playSampleMetronome(time, isDownbeat, isFirstOfBeat, masterVolume = 0.5) {
-    if (!this.buffers.metronome.click) return;
-
-    const { metronome: metroConfig } = SAMPLE_CONFIG;
+  playSampleMetronome(time, isDownbeat, isFirstOfBeat) {
+    if (!this.buffers.metronome.click || !this.masterGains.metronome) return;
 
     // Create buffer source
     const source = this.context.createBufferSource();
     source.buffer = this.buffers.metronome.click;
 
-    // Adjust volume based on beat type and master volume
+    // Beat-type multiplier for dynamics (downbeat louder)
     const beatMultiplier = isDownbeat && isFirstOfBeat 
-      ? 1.4  // Downbeat louder
+      ? 1.4 
       : isFirstOfBeat 
-        ? 1.0  // Normal beat
-        : 0.5; // Triplet softer
-    
-    const volume = masterVolume * beatMultiplier;
+        ? 1.0 
+        : 0.5;
 
-    // Create gain node
-    const gainNode = this.context.createGain();
-    gainNode.gain.setValueAtTime(volume, time);
+    // Create gain node for beat dynamics
+    const dynamicsGain = this.context.createGain();
+    dynamicsGain.gain.setValueAtTime(beatMultiplier, time);
 
-    // Connect and play
-    source.connect(gainNode);
-    gainNode.connect(this.context.destination);
+    // Connect: source -> dynamics -> master gain -> destination
+    source.connect(dynamicsGain);
+    dynamicsGain.connect(this.masterGains.metronome);
 
     source.start(time);
   }
 
   /**
-   * Play countdown beep (still uses oscillator for simplicity)
+   * Play countdown beep (uses oscillator)
    * @param {boolean} isStart - Higher pitch for "GO!" beep
    */
   playCountdownBeep(isStart = false) {
