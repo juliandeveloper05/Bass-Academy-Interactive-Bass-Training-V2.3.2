@@ -97,6 +97,9 @@
   --color-warm-white: #0D1B2A;
   --color-charcoal: #E8E4DE;
   
+  /* Info color for light mode (darker for better contrast) */
+  --color-info: #2563EB;
+  
   /* Override color scheme */
   color-scheme: light;
   

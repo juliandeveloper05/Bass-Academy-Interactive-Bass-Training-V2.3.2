@@ -73,7 +73,7 @@ function TabString({
       </div>
       <div className="flex-1 relative flex items-center">
         {/* String Line */}
-        <div className={`absolute w-full h-[1.5px] sm:h-[2px] ${lineColorClass}/40`} />
+        <div className={`absolute w-full h-[1.5px] sm:h-[2px] ${lineColorClass}/70`} />
         {/* Notes */}
         <div className="flex w-full justify-between relative z-10 gap-0.5">
           {notes.map((note, idx) => {
