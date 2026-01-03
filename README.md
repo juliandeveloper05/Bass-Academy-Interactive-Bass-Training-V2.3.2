@@ -142,9 +142,15 @@ The app will be available at `http://localhost:5173`
 - [x] Exercise library with selectable patterns
 - [x] Root note transposition (12 keys)
 - [x] Metronome with triplet subdivisions
+- [x] Beat indicator with measure display
 - [x] Fretboard visualization mode
-- [x] Light/Dark theme toggle
+- [x] Light/Dark theme toggle with persistence
 - [x] Countdown timer before playback
+- [x] Tempo presets (Slow/Medium/Fast)
+- [x] Keyboard accessibility (Space = play/pause)
+- [x] **PWA support** — Installable with offline use
+- [x] **Real bass samples** — Web Audio with pitch-shifted samples
+- [x] **Master volume controls** — Independent bass & metronome volume
 - [x] **Modular architecture refactoring**
 - [x] **Finite State Machine for player states**
 - [x] **Decoupled AudioService class**
@@ -152,9 +158,8 @@ The app will be available at `http://localhost:5173`
 ### 🔜 Upcoming
 - [ ] More artist techniques (Victor Wooten, Marcus Miller)
 - [ ] Scale patterns (Major, Minor, Modes)
-- [ ] PWA support for offline use
-- [ ] Real bass samples
 - [ ] Practice session statistics
+- [ ] Save progress to LocalStorage
 - [ ] Error boundaries
 - [ ] Unit tests with Vitest
 
@@ -166,7 +171,7 @@ The app will be available at `http://localhost:5173`
 
 ## 📄 License
 
-MIT © 2025
+MIT © 2026
 
 ---
 
