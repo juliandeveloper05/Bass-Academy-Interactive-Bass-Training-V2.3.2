@@ -149,7 +149,7 @@ function ArtistCard({ artist, onClick, index }) {
 
   return (
     <button
-      className="group relative w-full overflow-hidden text-left transition-all duration-500 transform rounded-2xl lg:rounded-3xl
+      className="landscape-compact-card group relative w-full overflow-hidden text-left transition-all duration-500 transform rounded-2xl lg:rounded-3xl
                  hover:scale-[1.03] active:scale-95 focus:outline-none focus:ring-4 focus:ring-white/30"
       onClick={() => onClick(artist.id)}
       onMouseEnter={() => setIsHovered(true)}
@@ -196,7 +196,7 @@ function ArtistCard({ artist, onClick, index }) {
         <div className="flex justify-between items-start mb-4 sm:mb-5">
           <div className="flex items-center gap-3">
             <span
-              className="text-4xl sm:text-5xl lg:text-6xl filter drop-shadow-2xl
+              className="landscape-compact-card-icon text-4xl sm:text-5xl lg:text-6xl filter drop-shadow-2xl
                          bg-white/15 p-2.5 sm:p-3 rounded-xl lg:rounded-2xl backdrop-blur-md
                          group-hover:scale-110 group-hover:rotate-6 transition-all duration-500
                          border border-white/20"
@@ -205,12 +205,12 @@ function ArtistCard({ artist, onClick, index }) {
             </span>
             <div className="lg:hidden">
               <h3
-                className="text-xl sm:text-2xl font-bold font-['Playfair_Display'] mb-1 
+                className="landscape-compact-card-title text-xl sm:text-2xl font-bold font-['Playfair_Display'] mb-1 
                            drop-shadow-lg leading-tight tracking-tight"
               >
                 {artist.name}
               </h3>
-              <p className="text-white/90 font-semibold text-xs uppercase tracking-wider">
+              <p className="landscape-compact-card-subtitle text-white/90 font-semibold text-xs uppercase tracking-wider">
                 {artist.subtitle}
               </p>
             </div>
@@ -247,7 +247,7 @@ function ArtistCard({ artist, onClick, index }) {
 
         {/* Description */}
         <p
-          className="text-white/85 text-sm sm:text-base mb-4 sm:mb-5 line-clamp-2
+          className="landscape-compact-card-desc text-white/85 text-sm sm:text-base mb-4 sm:mb-5 line-clamp-2
                     drop-shadow-md font-medium leading-relaxed"
         >
           {artist.description}
@@ -258,7 +258,7 @@ function ArtistCard({ artist, onClick, index }) {
           {artist.techniques.slice(0, 2).map((tech, i) => (
             <span
               key={i}
-              className="text-xs sm:text-sm bg-black/30 backdrop-blur-md px-3 py-1.5 
+              className="landscape-compact-tech text-xs sm:text-sm bg-black/30 backdrop-blur-md px-3 py-1.5 
                        rounded-full border border-white/20 font-medium
                        group-hover:bg-black/40 group-hover:border-white/30 
                        transition-all duration-300 drop-shadow-lg"
@@ -313,14 +313,14 @@ function HomeScreen({ onSelectArtist }) {
 
       {/* Main Content */}
       <div
-        className="relative z-10 min-h-screen flex flex-col items-center justify-center 
+        className="landscape-compact-container relative z-10 min-h-screen flex flex-col items-center justify-center 
                     p-4 sm:p-6 lg:p-8 animate-[fadeIn_0.8s_ease-out]"
       >
         {/* Header */}
-        <header className="text-center mb-8 sm:mb-12 lg:mb-16 relative px-4 max-w-5xl mx-auto">
+        <header className="landscape-compact-header text-center mb-8 sm:mb-12 lg:mb-16 relative px-4 max-w-5xl mx-auto">
           {/* Logo */}
           <div
-            className="inline-flex items-center justify-center p-4 sm:p-5 rounded-3xl 
+            className="landscape-compact-logo inline-flex items-center justify-center p-4 sm:p-5 rounded-3xl 
                         mb-5 sm:mb-7 lg:mb-8 shadow-2xl animate-[float_3s_ease-in-out_infinite]"
             style={{
               background: "linear-gradient(135deg, #C9A554 0%, #E0C285 100%)",
@@ -335,7 +335,7 @@ function HomeScreen({ onSelectArtist }) {
 
           {/* Main Title */}
           <h1
-            className="font-['Playfair_Display'] text-5xl sm:text-6xl md:text-7xl lg:text-8xl 
+            className="landscape-compact-title font-['Playfair_Display'] text-5xl sm:text-6xl md:text-7xl lg:text-8xl 
                        font-bold text-white mb-3 sm:mb-4 tracking-tight leading-none
                        drop-shadow-2xl animate-[fadeIn_1s_ease-out]"
           >
@@ -355,7 +355,7 @@ function HomeScreen({ onSelectArtist }) {
 
           {/* Subtitle */}
           <div
-            className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 
+            className="landscape-compact-subtitle flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 
                         text-base sm:text-lg lg:text-xl text-white/80 font-light tracking-[0.2em] 
                         uppercase mb-2 drop-shadow-lg"
           >
@@ -370,7 +370,7 @@ function HomeScreen({ onSelectArtist }) {
 
           {/* Description */}
           <p
-            className="text-white/60 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed
+            className="landscape-compact-description text-white/60 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed
                       font-['Inter'] drop-shadow-md"
           >
             Aprende técnicas de los mejores bajistas del mundo con ejercicios
@@ -380,7 +380,7 @@ function HomeScreen({ onSelectArtist }) {
 
         {/* Artist Grid */}
         <div
-          className="max-w-7xl w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 
+          className="landscape-compact-grid max-w-7xl w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 
                       gap-4 sm:gap-5 lg:gap-6 px-4 sm:px-6 relative z-10 mb-8"
         >
           {ARTISTS.map((artist, index) => (
@@ -400,7 +400,7 @@ function HomeScreen({ onSelectArtist }) {
 
         {/* Footer hint */}
         <footer
-          className="mt-8 sm:mt-10 text-white/40 text-xs sm:text-sm px-4 text-center 
+          className="landscape-compact-footer mt-8 sm:mt-10 text-white/40 text-xs sm:text-sm px-4 text-center 
                          relative z-10 font-['Inter'] animate-[fadeIn_1.5s_ease-out]"
         >
           Selecciona un artista para comenzar tu entrenamiento profesional
@@ -432,6 +432,126 @@ function HomeScreen({ onSelectArtist }) {
         @keyframes shine {
           0% { background-position: -200% center; }
           100% { background-position: 200% center; }
+        }
+        
+        /* Mobile Landscape Optimizations */
+        @media (max-height: 500px) and (orientation: landscape) {
+          .landscape-compact-container {
+            padding: 0.5rem 1rem !important;
+            min-height: 100vh;
+            justify-content: flex-start !important;
+          }
+          
+          .landscape-compact-header {
+            margin-bottom: 0.5rem !important;
+            padding-top: 0.25rem !important;
+          }
+          
+          .landscape-compact-logo {
+            padding: 0.5rem !important;
+            margin-bottom: 0.5rem !important;
+          }
+          
+          .landscape-compact-logo svg {
+            width: 24px !important;
+            height: 24px !important;
+          }
+          
+          .landscape-compact-title {
+            font-size: 1.75rem !important;
+            margin-bottom: 0.25rem !important;
+          }
+          
+          .landscape-compact-subtitle {
+            font-size: 0.65rem !important;
+            letter-spacing: 0.1em !important;
+            margin-bottom: 0.125rem !important;
+          }
+          
+          .landscape-compact-description {
+            display: none !important;
+          }
+          
+          .landscape-compact-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 0.5rem !important;
+            padding: 0 0.5rem !important;
+            margin-bottom: 0.5rem !important;
+          }
+          
+          .landscape-compact-card {
+            min-height: 100px !important;
+          }
+          
+          .landscape-compact-card > div:last-child {
+            padding: 0.75rem !important;
+            min-height: 100px !important;
+          }
+          
+          .landscape-compact-card-icon {
+            font-size: 1.5rem !important;
+            padding: 0.375rem !important;
+          }
+          
+          .landscape-compact-card-title {
+            font-size: 0.875rem !important;
+          }
+          
+          .landscape-compact-card-subtitle {
+            font-size: 0.6rem !important;
+          }
+          
+          .landscape-compact-card-desc {
+            display: none !important;
+          }
+          
+          .landscape-compact-tech {
+            font-size: 0.55rem !important;
+            padding: 0.25rem 0.5rem !important;
+          }
+          
+          .landscape-compact-footer {
+            display: none !important;
+          }
+          
+          /* Hide radial gradient overlays in landscape */
+          .fixed.top-0.right-0.w-\\[800px\\],
+          .fixed.bottom-0.left-0.w-\\[600px\\] {
+            opacity: 0.05 !important;
+          }
+        }
+        
+        /* Very small landscape screens */
+        @media (max-height: 400px) and (orientation: landscape) {
+          .landscape-compact-container {
+            padding: 0.25rem 0.75rem !important;
+          }
+          
+          .landscape-compact-header {
+            margin-bottom: 0.25rem !important;
+          }
+          
+          .landscape-compact-logo {
+            padding: 0.375rem !important;
+            margin-bottom: 0.25rem !important;
+          }
+          
+          .landscape-compact-title {
+            font-size: 1.5rem !important;
+          }
+          
+          .landscape-compact-grid {
+            gap: 0.375rem !important;
+          }
+          
+          .landscape-compact-card {
+            min-height: 85px !important;
+          }
+          
+          .landscape-compact-card-icon {
+            font-size: 1.25rem !important;
+            padding: 0.25rem !important;
+          }
         }
       `}</style>
     </div>
