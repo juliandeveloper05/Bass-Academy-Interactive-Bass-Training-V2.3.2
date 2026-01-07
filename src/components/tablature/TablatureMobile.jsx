@@ -73,7 +73,7 @@ function TablatureMobile({
         variant="compact"
       />
 
-      <div className="p-3 sm:p-4 space-y-4">
+      <div className="p-2 sm:p-3 space-y-2">
         {/* Measure 1 Section */}
         <div 
           ref={measure1Ref}
@@ -92,7 +92,7 @@ function TablatureMobile({
           
           {/* 4 Strings - Scrollable Horizontal Tab */}
           <div 
-            className={`glass rounded-xl p-3 sm:p-4 transition-all duration-300 ${
+            className={`glass rounded-lg p-2 sm:p-3 transition-all duration-300 ${
               activeMeasure === 1 && isPlaying ? 'ring-2 ring-[var(--color-gold)]/50' : ''
             }`}
           >
@@ -105,7 +105,7 @@ function TablatureMobile({
                 scrollbarColor: 'var(--color-gold) var(--color-primary-dark)'
               }}
             >
-              <div className="min-w-max space-y-2">
+              <div className="min-w-max space-y-1">
                 {STRING_ORDER.map(stringName => (
                   <TabString
                     key={stringName}
@@ -132,8 +132,8 @@ function TablatureMobile({
         </div>
 
         {/* Arrow Divider */}
-        <div className="flex justify-center my-2">
-          <ChevronRight className={`w-6 h-6 rotate-90 transition-colors duration-300 ${
+        <div className="flex justify-center my-1">
+          <ChevronRight className={`w-5 h-5 rotate-90 transition-colors duration-300 ${
             activeMeasure === 2 ? 'text-[var(--color-info)]' : 'text-[var(--color-primary-medium)]'
           }`} />
         </div>
@@ -156,7 +156,7 @@ function TablatureMobile({
           
           {/* 4 Strings - Scrollable Horizontal Tab */}
           <div 
-            className={`glass rounded-xl p-3 sm:p-4 transition-all duration-300 ${
+            className={`glass rounded-lg p-2 sm:p-3 transition-all duration-300 ${
               activeMeasure === 2 && isPlaying ? 'ring-2 ring-[var(--color-info)]/50' : ''
             }`}
           >
@@ -169,7 +169,7 @@ function TablatureMobile({
                 scrollbarColor: 'var(--color-info) var(--color-primary-dark)'
               }}
             >
-              <div className="min-w-max space-y-2">
+              <div className="min-w-max space-y-1">
                 {STRING_ORDER.map(stringName => (
                   <TabString
                     key={stringName}

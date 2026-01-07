@@ -460,23 +460,23 @@ body {
   background: #00FF00;
 }
 
-/* Mobile Optimizations */
+/* Mobile Optimizations - COMPACT VIEW */
 @media (max-width: 640px) {
-  /* Ensure minimum touch targets */
+  /* Compact touch targets for better fit */
   .tab-note-mobile {
-    min-width: 2rem;
-    min-height: 2rem;
+    min-width: 1.5rem;
+    min-height: 1.5rem;
     touch-action: manipulation;
   }
   
-  /* Increase string height for better visibility */
+  /* Compact string height */
   .tab-string-mobile {
-    min-height: 2.25rem;
+    min-height: 1.75rem;
   }
   
-  /* Better spacing in mobile containers */
+  /* Compact spacing in mobile containers */
   .glass {
-    padding: 0.75rem;
+    padding: 0.5rem;
   }
   
   /* Smoother scrolling on mobile */
@@ -498,7 +498,7 @@ body {
   /* Keep scrollbar visible for tablature scrollers */
   .scrollbar-thin::-webkit-scrollbar {
     display: block !important;
-    height: 4px;
+    height: 3px;
   }
   
   .scrollbar-thin {
@@ -506,11 +506,15 @@ body {
   }
 }
 
-/* Small mobile devices */
+/* Small mobile devices - Extra compact */
 @media (max-width: 375px) {
   .tab-note-mobile {
-    min-width: 1.75rem;
-    min-height: 1.75rem;
+    min-width: 1.25rem;
+    min-height: 1.25rem;
+  }
+  
+  .tab-string-mobile {
+    min-height: 1.5rem;
   }
 }
 

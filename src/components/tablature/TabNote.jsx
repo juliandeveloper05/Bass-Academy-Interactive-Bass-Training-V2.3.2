@@ -9,12 +9,12 @@
 import React from 'react';
 
 function TabNote({ fret, isActive, size = 'default' }) {
-  // Tamaños optimizados - MÁS GRANDES EN MÓVIL
+  // Tamaños optimizados para COMPACT MOBILE VIEW
   const sizeClasses = size === 'compact' 
-    ? 'w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl text-xs sm:text-sm tab-note-mobile' // Aumentado de w-5 h-5
+    ? 'w-6 h-6 sm:w-7 sm:h-7 rounded-md sm:rounded-lg text-[10px] sm:text-xs tab-note-mobile' // Compacto para ver ambas tablaturas
     : 'w-10 h-10 rounded-xl text-sm';
   
-  const activeScale = size === 'compact' ? 'scale-110 sm:scale-125' : 'scale-125';
+  const activeScale = size === 'compact' ? 'scale-105 sm:scale-110' : 'scale-125';
   
   return (
     <div
