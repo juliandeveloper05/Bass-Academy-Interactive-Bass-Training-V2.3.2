@@ -22,7 +22,8 @@ function TablatureMobile({
   secondPattern = 'linear11thsMin',
   tempo = 60,
   isPlaying = false,
-  onMeasureClick = null
+  onMeasureClick = null,
+  onTapPause = null
 }) {
   const measure1Ref = useRef(null);
   const measure2Ref = useRef(null);
@@ -73,7 +74,15 @@ function TablatureMobile({
         variant="compact"
       />
 
-      <div className="p-2 sm:p-3 space-y-2">
+      <div 
+        className="p-2 sm:p-3 space-y-2"
+        onClick={() => {
+          if (isPlaying && onTapPause) {
+            onTapPause();
+          }
+        }}
+        style={{ cursor: isPlaying ? 'pointer' : 'default' }}
+      >
         {/* Measure 1 Section */}
         <div 
           ref={measure1Ref}

@@ -309,7 +309,7 @@ const BassTrainer = ({ selectedCategory, onBack }) => {
           ) : (
             <>
               <TablatureDesktop tabData={tabData} currentNoteIndex={currentNoteIndex} selectedRoot={selectedRoot} selectedPattern={selectedPattern} secondRoot={secondRoot} secondPattern={secondPattern} tempo={tempo} isPlaying={isPlaying} />
-              <TablatureMobile tabData={tabData} currentNoteIndex={currentNoteIndex} selectedRoot={selectedRoot} selectedPattern={selectedPattern} secondRoot={secondRoot} secondPattern={secondPattern} tempo={tempo} isPlaying={isPlaying} />
+              <TablatureMobile tabData={tabData} currentNoteIndex={currentNoteIndex} selectedRoot={selectedRoot} selectedPattern={selectedPattern} secondRoot={secondRoot} secondPattern={secondPattern} tempo={tempo} isPlaying={isPlaying} onTapPause={handleStop} />
             </>
           )}
         </div>
