@@ -71,14 +71,14 @@ function TabString({
   
   // Mobile compact variant - MEJORADO
   return (
-    <div className="flex items-center h-7 sm:h-8 relative tab-string-mobile">
-      {/* String Label - Compacto */}
+    <div className="flex items-center h-6 sm:h-7 relative tab-string-mobile">
+      {/* String Label - Ultra-compacto */}
       <div className={`
-        w-6 sm:w-8 font-mono text-xs sm:text-sm font-bold ${colorClass} 
+        w-5 sm:w-6 font-mono text-[9px] sm:text-xs font-bold ${colorClass} 
         flex-shrink-0 flex items-center justify-center
-        bg-[var(--color-primary-dark)]/60 rounded-md
+        bg-[var(--color-primary-dark)]/60 rounded
         border border-current/20
-        mr-1.5
+        mr-1
       `}>
         {stringName}
       </div>
@@ -108,11 +108,11 @@ function TabString({
           }}
         />
         
-        {/* Notes - Spacing compacto */}
-        <div className="flex relative z-10 gap-1 sm:gap-1.5">
+        {/* Notes - Spacing ULTRA-compacto para 12 notas visibles */}
+        <div className="flex relative z-10 gap-0.5 sm:gap-1">
           {notes.map((note, idx) => {
             if (note.string !== stringName) {
-              return <div key={idx} className="w-6 h-6 sm:w-7 sm:h-7 tab-note-mobile" />;
+              return <div key={idx} className="w-5 h-5 sm:w-6 sm:h-6 tab-note-mobile" />;
             }
             
             return (
