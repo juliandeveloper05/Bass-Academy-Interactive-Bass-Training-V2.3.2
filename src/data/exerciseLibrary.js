@@ -151,6 +151,252 @@ export const PATTERNS = {
     ]
   },
 
+  // ============================================
+  // NUEVAS TÉCNICAS - ACTUALIZACIÓN 2026
+  // ============================================
+
+  // === John Patitucci - Técnicas Avanzadas ===
+  twoFeatWalkingBass: {
+    id: 'twoFeatWalkingBass',
+    name: 'Two-Beat Walking',
+    description: 'Walking bass estilo Patitucci - Half-time feel',
+    category: 'Patitucci',
+    difficulty: 3,
+    beatsPerMeasure: 4,
+    notesPerBeat: 3,
+    notes: [
+      { interval: 0, string: 'E' }, { interval: 2, string: 'E' }, { interval: 4, string: 'E' },
+      { interval: 5, string: 'A' }, { interval: 7, string: 'A' }, { interval: 9, string: 'D' },
+      { interval: 11, string: 'D' }, { interval: 9, string: 'D' }, { interval: 7, string: 'A' },
+      { interval: 5, string: 'A' }, { interval: 4, string: 'E' }, { interval: 2, string: 'E' }
+    ]
+  },
+  sambaGroovePattern: {
+    id: 'sambaGroovePattern',
+    name: 'Samba Brasileiro',
+    description: 'Groove sincopado estilo baião',
+    category: 'Patitucci',
+    difficulty: 4,
+    beatsPerMeasure: 4,
+    notesPerBeat: 3,
+    notes: [
+      { interval: 0, string: 'E' }, { interval: 0, string: 'E' }, { interval: 7, string: 'A' },
+      { interval: 0, string: 'E' }, { interval: 12, string: 'D' }, { interval: 0, string: 'E' },
+      { interval: 7, string: 'A' }, { interval: 0, string: 'E' }, { interval: 12, string: 'D' },
+      { interval: 7, string: 'A' }, { interval: 0, string: 'E' }, { interval: 0, string: 'E' }
+    ]
+  },
+  sixStringExtended: {
+    id: 'sixStringExtended',
+    name: '6-String Extended',
+    description: 'Arpegios en registro alto (simula 6 cuerdas)',
+    category: 'Patitucci',
+    difficulty: 5,
+    beatsPerMeasure: 4,
+    notesPerBeat: 3,
+    notes: [
+      { interval: 12, string: 'D' }, { interval: 16, string: 'G' }, { interval: 19, string: 'G' },
+      { interval: 23, string: 'G' }, { interval: 26, string: 'G' }, { interval: 23, string: 'G' },
+      { interval: 19, string: 'G' }, { interval: 16, string: 'G' }, { interval: 12, string: 'D' },
+      { interval: 16, string: 'G' }, { interval: 19, string: 'G' }, { interval: 12, string: 'D' }
+    ]
+  },
+  melodicContrapunto: {
+    id: 'melodicContrapunto',
+    name: 'Bach Contrapunto',
+    description: 'Líneas contrapuntísticas cromáticas',
+    category: 'Patitucci',
+    difficulty: 4,
+    beatsPerMeasure: 4,
+    notesPerBeat: 3,
+    notes: [
+      { interval: 0, string: 'E' }, { interval: 1, string: 'E' }, { interval: 2, string: 'E' },
+      { interval: 3, string: 'E' }, { interval: 4, string: 'E' }, { interval: 5, string: 'A' },
+      { interval: 7, string: 'A' }, { interval: 8, string: 'D' }, { interval: 9, string: 'D' },
+      { interval: 10, string: 'D' }, { interval: 9, string: 'D' }, { interval: 7, string: 'A' }
+    ]
+  },
+
+  // === Victor Wooten - Slap Avanzado ===
+  classicalThumpPattern: {
+    id: 'classicalThumpPattern',
+    name: 'Classical Thump',
+    description: 'Múltiples thumb techniques en secuencia',
+    category: 'Wooten',
+    difficulty: 5,
+    beatsPerMeasure: 4,
+    notesPerBeat: 4,
+    notes: [
+      { interval: 0, string: 'E' }, { interval: 0, string: 'E' }, { interval: 0, string: 'E' }, { interval: 0, string: 'E' },
+      { interval: 5, string: 'A' }, { interval: 5, string: 'A' }, { interval: 12, string: 'D' }, { interval: 17, string: 'G' },
+      { interval: 17, string: 'G' }, { interval: 12, string: 'D' }, { interval: 5, string: 'A' }, { interval: 0, string: 'E' }
+    ]
+  },
+  percussiveOHP: {
+    id: 'percussiveOHP',
+    name: 'OHP Percussive',
+    description: 'Open-Hammer-Pluck avanzado',
+    category: 'Wooten',
+    difficulty: 5,
+    beatsPerMeasure: 4,
+    notesPerBeat: 3,
+    notes: [
+      { interval: 0, string: 'E' }, { interval: 2, string: 'E' }, { interval: 4, string: 'E' },
+      { interval: 0, string: 'E' }, { interval: 5, string: 'A' }, { interval: 7, string: 'A' },
+      { interval: 0, string: 'E' }, { interval: 9, string: 'D' }, { interval: 12, string: 'D' },
+      { interval: 0, string: 'E' }, { interval: 7, string: 'A' }, { interval: 5, string: 'A' }
+    ]
+  },
+  chordalTapping: {
+    id: 'chordalTapping',
+    name: 'Chordal Tapping',
+    description: 'Acordes completos en tapping',
+    category: 'Wooten',
+    difficulty: 5,
+    beatsPerMeasure: 4,
+    notesPerBeat: 4,
+    notes: [
+      { interval: 7, string: 'A' }, { interval: 11, string: 'D' }, { interval: 14, string: 'D' }, { interval: 16, string: 'G' },
+      { interval: 16, string: 'G' }, { interval: 14, string: 'D' }, { interval: 11, string: 'D' }, { interval: 7, string: 'A' },
+      { interval: 5, string: 'A' }, { interval: 9, string: 'D' }, { interval: 12, string: 'D' }, { interval: 5, string: 'A' }
+    ]
+  },
+  thumbPluckQuintuplets: {
+    id: 'thumbPluckQuintuplets',
+    name: 'Quintuplet Groove',
+    description: 'Quintillos con thumb y pluck',
+    category: 'Wooten',
+    difficulty: 5,
+    beatsPerMeasure: 4,
+    notesPerBeat: 3,
+    notes: [
+      { interval: 0, string: 'E' }, { interval: 3, string: 'E' }, { interval: 5, string: 'A' },
+      { interval: 7, string: 'A' }, { interval: 10, string: 'D' }, { interval: 12, string: 'D' },
+      { interval: 10, string: 'D' }, { interval: 7, string: 'A' }, { interval: 5, string: 'A' },
+      { interval: 3, string: 'E' }, { interval: 0, string: 'E' }, { interval: 0, string: 'E' }
+    ]
+  },
+
+  // === Flea - Funk Intenso ===
+  aroundWorldGroove: {
+    id: 'aroundWorldGroove',
+    name: 'Around The World',
+    description: 'Fuzz bass con ghost notes',
+    category: 'Flea',
+    difficulty: 3,
+    beatsPerMeasure: 4,
+    notesPerBeat: 4,
+    notes: [
+      { interval: 0, string: 'E' }, { interval: 0, string: 'E' }, { interval: 7, string: 'A' }, { interval: 0, string: 'E' },
+      { interval: 12, string: 'D' }, { interval: 0, string: 'E' }, { interval: 7, string: 'A' }, { interval: 0, string: 'E' },
+      { interval: 0, string: 'E' }, { interval: 10, string: 'D' }, { interval: 7, string: 'A' }, { interval: 0, string: 'E' }
+    ]
+  },
+  aeroplaneFunkLine: {
+    id: 'aeroplaneFunkLine',
+    name: 'Aeroplane Funk',
+    description: 'Slap con muted thumps y slides',
+    category: 'Flea',
+    difficulty: 4,
+    beatsPerMeasure: 4,
+    notesPerBeat: 4,
+    notes: [
+      { interval: 0, string: 'E' }, { interval: 0, string: 'E' }, { interval: 3, string: 'E' }, { interval: 5, string: 'E' },
+      { interval: 0, string: 'E' }, { interval: 10, string: 'D' }, { interval: 12, string: 'D' }, { interval: 10, string: 'D' },
+      { interval: 0, string: 'E' }, { interval: 7, string: 'A' }, { interval: 5, string: 'A' }, { interval: 3, string: 'E' }
+    ]
+  },
+  soulToSqueezeMelodic: {
+    id: 'soulToSqueezeMelodic',
+    name: 'Soul Melodic',
+    description: 'Línea melódica con bends expresivos',
+    category: 'Flea',
+    difficulty: 3,
+    beatsPerMeasure: 4,
+    notesPerBeat: 3,
+    notes: [
+      { interval: 0, string: 'E' }, { interval: 3, string: 'E' }, { interval: 5, string: 'A' },
+      { interval: 7, string: 'A' }, { interval: 10, string: 'D' }, { interval: 12, string: 'D' },
+      { interval: 12, string: 'D' }, { interval: 10, string: 'D' }, { interval: 8, string: 'D' },
+      { interval: 7, string: 'A' }, { interval: 5, string: 'A' }, { interval: 3, string: 'E' }
+    ]
+  },
+  cantStopSyncopation: {
+    id: 'cantStopSyncopation',
+    name: 'Cant Stop Rhythm',
+    description: 'Síncopa compleja con ghost notes',
+    category: 'Flea',
+    difficulty: 4,
+    beatsPerMeasure: 4,
+    notesPerBeat: 4,
+    notes: [
+      { interval: 0, string: 'E' }, { interval: 0, string: 'E' }, { interval: 2, string: 'E' }, { interval: 3, string: 'E' },
+      { interval: 0, string: 'E' }, { interval: 0, string: 'E' }, { interval: 7, string: 'A' }, { interval: 5, string: 'A' },
+      { interval: 3, string: 'E' }, { interval: 0, string: 'E' }, { interval: 0, string: 'E' }, { interval: 0, string: 'E' }
+    ]
+  },
+
+  // === Jaco Pastorius - Fretless Master ===
+  naturalHarmonicsMelody: {
+    id: 'naturalHarmonicsMelody',
+    name: 'Natural Harmonics',
+    description: 'Armónicos naturales puros',
+    category: 'Jaco',
+    difficulty: 5,
+    beatsPerMeasure: 4,
+    notesPerBeat: 3,
+    notes: [
+      { interval: 12, string: 'E' }, { interval: 12, string: 'A' }, { interval: 12, string: 'D' },
+      { interval: 19, string: 'G' }, { interval: 12, string: 'G' }, { interval: 12, string: 'D' },
+      { interval: 12, string: 'A' }, { interval: 7, string: 'A' }, { interval: 12, string: 'D' },
+      { interval: 19, string: 'G' }, { interval: 12, string: 'E' }, { interval: 12, string: 'E' }
+    ]
+  },
+  artificialHarmonicsArpeggio: {
+    id: 'artificialHarmonicsArpeggio',
+    name: 'Artificial Harmonics',
+    description: 'Armónicos artificiales en acordes',
+    category: 'Jaco',
+    difficulty: 5,
+    beatsPerMeasure: 4,
+    notesPerBeat: 3,
+    notes: [
+      { interval: 12, string: 'E' }, { interval: 16, string: 'G' }, { interval: 19, string: 'G' },
+      { interval: 23, string: 'G' }, { interval: 19, string: 'G' }, { interval: 16, string: 'G' },
+      { interval: 12, string: 'E' }, { interval: 16, string: 'G' }, { interval: 19, string: 'G' },
+      { interval: 16, string: 'G' }, { interval: 12, string: 'E' }, { interval: 12, string: 'E' }
+    ]
+  },
+  havonaMelodicRun: {
+    id: 'havonaMelodicRun',
+    name: 'Havona Runs',
+    description: 'Runs melódicos rápidos con glissandos',
+    category: 'Jaco',
+    difficulty: 5,
+    beatsPerMeasure: 4,
+    notesPerBeat: 4,
+    notes: [
+      { interval: 0, string: 'E' }, { interval: 2, string: 'E' }, { interval: 4, string: 'E' }, { interval: 5, string: 'A' },
+      { interval: 7, string: 'A' }, { interval: 9, string: 'D' }, { interval: 11, string: 'D' }, { interval: 12, string: 'D' },
+      { interval: 14, string: 'D' }, { interval: 16, string: 'G' }, { interval: 17, string: 'G' }, { interval: 19, string: 'G' }
+    ]
+  },
+  continuumChordalStyle: {
+    id: 'continuumChordalStyle',
+    name: 'Continuum Chords',
+    description: 'Double stops en fretless',
+    category: 'Jaco',
+    difficulty: 5,
+    beatsPerMeasure: 4,
+    notesPerBeat: 3,
+    notes: [
+      { interval: 7, string: 'A' }, { interval: 11, string: 'D' }, { interval: 14, string: 'D' },
+      { interval: 16, string: 'G' }, { interval: 14, string: 'D' }, { interval: 11, string: 'D' },
+      { interval: 7, string: 'A' }, { interval: 11, string: 'D' }, { interval: 14, string: 'D' },
+      { interval: 11, string: 'D' }, { interval: 7, string: 'A' }, { interval: 7, string: 'A' }
+    ]
+  },
+
   // === Standard Patterns (Basic & Advanced) ===
   maj7: {
     id: 'maj7', name: 'Major 7th', description: 'Arpegio Maj7 básico', category: 'Basic 7ths', difficulty: 2, beatsPerMeasure: 4, notesPerBeat: 3,
