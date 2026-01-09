@@ -8,7 +8,7 @@ const ARTISTS = [
   {
     id: "Patitucci",
     name: "John Patitucci",
-    icon: "🎸",
+    image: "/images/artists/patitucci.png",
     subtitle: "Modern Jazz Bass",
     color: "gold",
     techniques: ["Linear 11ths (Maj)", "Linear 11ths (Min)"],
@@ -19,7 +19,7 @@ const ARTISTS = [
   {
     id: "Wooten",
     name: "Victor Wooten",
-    icon: "🔥",
+    image: "/images/artists/wooten.png",
     subtitle: "Advanced Slap Tech",
     color: "red",
     techniques: ["Double Thumbing", "Open Hammer Pluck"],
@@ -30,7 +30,7 @@ const ARTISTS = [
   {
     id: "Flea",
     name: "Flea (RHCP)",
-    icon: "🌶️",
+    image: "/images/artists/flea.png",
     subtitle: "Funk-Punk Slap Bass",
     color: "orange",
     techniques: ["Slap & Pop Octaves", "Ghost Notes Groove"],
@@ -41,7 +41,7 @@ const ARTISTS = [
   {
     id: "Jaco",
     name: "Jaco Pastorius",
-    icon: "🎹",
+    image: "/images/artists/jaco.png",
     subtitle: "Fretless Fingerstyle",
     color: "blue",
     techniques: ["Natural Harmonics", "Artificial Harmonics"],
@@ -56,139 +56,136 @@ const ARTISTS = [
  */
 function ArtistCard({ artist, onClick, index }) {
   const [isHovered, setIsHovered] = React.useState(false);
+  const cardRef = React.useRef(null);
+  const [rotation, setRotation] = React.useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    const card = cardRef.current;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    // Calculate rotation (max 10 degrees)
+    const rotateX = ((y - centerY) / centerY) * -10;
+    const rotateY = ((x - centerX) / centerX) * 10;
+
+    setRotation({ x: rotateX, y: rotateY });
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setRotation({ x: 0, y: 0 });
+  };
 
   return (
-    <button
-      className="landscape-compact-card group relative w-full overflow-hidden text-left transition-all duration-500 transform rounded-2xl lg:rounded-3xl
-                 hover:scale-[1.03] active:scale-95 focus:outline-none focus:ring-4 focus:ring-white/30"
-      onClick={() => onClick(artist.id)}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      style={{
-        background: artist.gradient,
-        animationDelay: `${index * 0.15}s`,
-        minHeight: "200px",
-        boxShadow: isHovered
-          ? `0 30px 60px -12px ${artist.accentColor}40, 0 18px 36px -18px ${artist.accentColor}60`
-          : "0 10px 30px -5px rgba(0,0,0,0.3)",
-      }}
-      aria-label={`Select ${artist.name} exercises`}
-    >
-      {/* Animated gradient overlay */}
-      <div
-        className="absolute inset-0 bg-gradient-to-br from-black/30 via-transparent to-transparent opacity-60
-                   group-hover:opacity-40 transition-opacity duration-500"
-      />
-
-      {/* Shine effect on hover */}
-      <div
-        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+    <div className="perspective-1000 w-full h-full"> 
+      <button
+        ref={cardRef}
+        className="landscape-compact-card group relative w-full h-full overflow-hidden text-left transition-all duration-300 transform rounded-2xl lg:rounded-3xl
+                   focus:outline-none focus:ring-4 focus:ring-white/30"
+        onClick={() => onClick(artist.id)}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
         style={{
-          background:
-            "linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%)",
-          backgroundSize: "200% 200%",
-          animation: isHovered ? "shine 1.5s ease-in-out" : "none",
+          transform: `perspective(1000px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg) scale(${isHovered ? 1.05 : 1})`,
+          boxShadow: isHovered
+            ? `0 30px 60px -12px ${artist.accentColor}60, 0 18px 36px -18px ${artist.accentColor}80`
+            : "0 10px 30px -5px rgba(0,0,0,0.5)",
+          minHeight: "380px",
         }}
-      />
+        aria-label={`Select ${artist.name} exercises`}
+      >
+        {/* Artist Image Background */}
+        <div className="absolute inset-0">
+          <img 
+            src={artist.image} 
+            alt={artist.name}
+            className="w-full h-full object-cover transition-transform duration-700 scale-110 group-hover:scale-100 filter brightness-75 group-hover:brightness-110"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90 group-hover:opacity-80 transition-opacity duration-500" />
+        </div>
 
-      {/* Glow border effect */}
-      <div
-        className="absolute inset-0 rounded-2xl lg:rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-        style={{
-          boxShadow: `inset 0 0 20px ${artist.accentColor}40`,
-          pointerEvents: "none",
-        }}
-      />
+        {/* Animated gradient overlay */}
+        <div
+          className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0
+                     group-hover:opacity-30 transition-opacity duration-500 mix-blend-overlay"
+        />
 
-      {/* Content */}
-      <div className="relative p-5 sm:p-6 lg:p-8 z-10 flex flex-col h-full text-white min-h-[200px]">
-        {/* Header */}
-        <div className="flex justify-between items-start mb-4 sm:mb-5">
-          <div className="flex items-center gap-3">
-            <span
-              className="landscape-compact-card-icon text-4xl sm:text-5xl lg:text-6xl filter drop-shadow-2xl
-                         bg-white/15 p-2.5 sm:p-3 rounded-xl lg:rounded-2xl backdrop-blur-md
-                         group-hover:scale-110 group-hover:rotate-6 transition-all duration-500
-                         border border-white/20"
-            >
-              {artist.icon}
-            </span>
-            <div className="lg:hidden">
-              <h3
-                className="landscape-compact-card-title text-xl sm:text-2xl font-bold font-['Playfair_Display'] mb-1 
-                           drop-shadow-lg leading-tight tracking-tight"
-              >
-                {artist.name}
-              </h3>
-              <p className="landscape-compact-card-subtitle text-white/90 font-semibold text-xs uppercase tracking-wider">
+        {/* Shine effect on hover */}
+        <div
+          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+          style={{
+            background:
+              "linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%)",
+            backgroundSize: "200% 200%",
+            animation: isHovered ? "shine 1.5s ease-in-out" : "none",
+          }}
+        />
+
+        {/* Content */}
+        <div className="relative p-5 sm:p-6 lg:p-8 z-10 flex flex-col h-full text-white">
+          {/* Header */}
+          <div className="flex justify-between items-start mb-auto">
+             <div className="bg-black/30 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-xs font-bold tracking-widest uppercase">
                 {artist.subtitle}
-              </p>
+             </div>
+            <div
+              className="bg-white/15 backdrop-blur-md p-2 rounded-full opacity-0 
+                         group-hover:opacity-100 transition-all duration-500 border border-white/20
+                         group-hover:rotate-12 transform"
+            >
+              <Sparkles size={18} className="text-white" />
             </div>
           </div>
 
-          <div
-            className="bg-white/15 backdrop-blur-md p-2 sm:p-2.5 rounded-full opacity-0 
-                       group-hover:opacity-100 transition-all duration-500 border border-white/20
-                       group-hover:rotate-12 transform"
-          >
-            <Sparkles size={18} className="sm:w-5 sm:h-5" />
-          </div>
-        </div>
-
-        {/* Title - Desktop only */}
-        <div className="hidden lg:block mb-4">
-          <h3
-            className="text-3xl xl:text-4xl font-bold font-['Playfair_Display'] mb-2 
-                       drop-shadow-lg leading-tight tracking-tight"
-          >
-            {artist.name}
-          </h3>
-          <p
-            className="text-white/95 font-bold text-sm uppercase tracking-widest 
-                      drop-shadow-md flex items-center gap-2"
-          >
-            {artist.subtitle}
-            <TrendingUp
-              size={16}
-              className="group-hover:translate-x-1 transition-transform"
-            />
-          </p>
-        </div>
-
-        {/* Description */}
-        <p
-          className="landscape-compact-card-desc text-white/85 text-sm sm:text-base mb-4 sm:mb-5 line-clamp-2
-                    drop-shadow-md font-medium leading-relaxed"
-        >
-          {artist.description}
-        </p>
-
-        {/* Techniques */}
-        <div className="flex flex-wrap gap-2 mt-auto">
-          {artist.techniques.slice(0, 2).map((tech, i) => (
-            <span
-              key={i}
-              className="landscape-compact-tech text-xs sm:text-sm bg-black/30 backdrop-blur-md px-3 py-1.5 
-                       rounded-full border border-white/20 font-medium
-                       group-hover:bg-black/40 group-hover:border-white/30 
-                       transition-all duration-300 drop-shadow-lg"
+          {/* Title - Desktop only */}
+          <div className="mt-8">
+            <h3
+              className="text-3xl xl:text-5xl font-bold font-['Playfair_Display'] mb-3 
+                         drop-shadow-lg leading-none tracking-tight transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500"
             >
-              {tech}
-            </span>
-          ))}
+              {artist.name}
+            </h3>
+            
+            <div className="w-12 h-1 bg-white/50 rounded-full mb-4 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
 
-          {/* Action indicator */}
-          <div
-            className="ml-auto flex items-center gap-2 text-xs sm:text-sm font-bold 
-                       opacity-0 group-hover:opacity-100 transition-all duration-500
-                       transform translate-x-2 group-hover:translate-x-0"
-          >
-            <span className="hidden sm:inline drop-shadow-lg">ENTRAR</span>
-            <Zap size={16} className="drop-shadow-lg" />
+            <p
+              className="text-white/80 text-sm sm:text-base line-clamp-2
+                        drop-shadow-md font-medium leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100"
+            >
+              {artist.description}
+            </p>
           </div>
+
+          {/* Techniques */}
+          <div className="flex flex-wrap gap-2 mt-6 transform translate-y-8 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-200">
+            {artist.techniques.map((tech, i) => (
+              <span
+                key={i}
+                className="text-xs bg-white/10 backdrop-blur-sm px-3 py-1 
+                         rounded-full border border-white/10 font-medium"
+              >
+                {tech}
+              </span>
+            ))}
+          </div>
+
+             {/* Action indicator */}
+            <div
+            className="absolute bottom-6 right-6 flex items-center gap-2 text-sm font-bold 
+                        opacity-0 group-hover:opacity-100 transition-all duration-500 delay-300
+                        translate-x-4 group-hover:translate-x-0 text-[#C9A554]"
+            >
+            <span className="uppercase tracking-widest text-xs">Explore</span>
+            <Zap size={18} className="fill-current" />
+            </div>
         </div>
-      </div>
-    </button>
+      </button>
+    </div>
   );
 }
 
@@ -200,6 +197,7 @@ function HomeScreen({ onSelectArtist, onSelectCustomBuilder }) {
     <div
       className="home-screen-bg min-h-screen relative overflow-hidden"
     >
+      <div className="grain-overlay" />
 
 
       {/* Radial gradient overlays for depth */}
