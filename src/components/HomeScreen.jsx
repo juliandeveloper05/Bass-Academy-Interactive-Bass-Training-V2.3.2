@@ -60,14 +60,15 @@ function ArtistCard({ artist, onClick, index }) {
   return (
     <button
       className="landscape-compact-card group relative w-full overflow-hidden text-left transition-all duration-500 transform rounded-2xl lg:rounded-3xl
-                 hover:scale-[1.03] active:scale-95 focus:outline-none focus:ring-4 focus:ring-white/30"
+                 hover:scale-[1.03] active:scale-95 focus:outline-none focus:ring-4 focus:ring-white/30
+                 flex flex-col"
       onClick={() => onClick(artist.id)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{
         background: artist.gradient,
         animationDelay: `${index * 0.15}s`,
-        minHeight: "200px",
+        height: "280px",
         boxShadow: isHovered
           ? `0 30px 60px -12px ${artist.accentColor}40, 0 18px 36px -18px ${artist.accentColor}60`
           : "0 10px 30px -5px rgba(0,0,0,0.3)",
@@ -101,7 +102,7 @@ function ArtistCard({ artist, onClick, index }) {
       />
 
       {/* Content */}
-      <div className="relative p-5 sm:p-6 lg:p-8 z-10 flex flex-col h-full text-white min-h-[200px]">
+      <div className="relative p-5 sm:p-6 lg:p-8 z-10 flex flex-col h-full text-white">
         {/* Header */}
         <div className="flex justify-between items-start mb-4 sm:mb-5">
           <div className="flex items-center gap-3">
@@ -204,8 +205,6 @@ function HomeScreen({ onSelectArtist, onSelectCustomBuilder }) {
           "linear-gradient(135deg, #0D1B2A 0%, #1B263B 50%, #0a1628 100%)",
       }}
     >
-
-
       {/* Radial gradient overlays for depth */}
       <div
         className="fixed top-0 right-0 w-[800px] h-[800px] rounded-full opacity-10 pointer-events-none blur-3xl"
@@ -417,9 +416,9 @@ function HomeScreen({ onSelectArtist, onSelectCustomBuilder }) {
             margin-bottom: 0.5rem !important;
           }
           
-          .landscape-compact-logo svg {
-            width: 24px !important;
-            height: 24px !important;
+          .landscape-compact-logo img {
+            width: 48px !important;
+            height: 48px !important;
           }
           
           .landscape-compact-title {
@@ -445,12 +444,11 @@ function HomeScreen({ onSelectArtist, onSelectCustomBuilder }) {
           }
           
           .landscape-compact-card {
-            min-height: 100px !important;
+            height: 120px !important;
           }
           
           .landscape-compact-card > div:last-child {
             padding: 0.75rem !important;
-            min-height: 100px !important;
           }
           
           .landscape-compact-card-icon {
@@ -501,6 +499,11 @@ function HomeScreen({ onSelectArtist, onSelectCustomBuilder }) {
             margin-bottom: 0.25rem !important;
           }
           
+          .landscape-compact-logo img {
+            width: 40px !important;
+            height: 40px !important;
+          }
+          
           .landscape-compact-title {
             font-size: 1.5rem !important;
           }
@@ -510,7 +513,7 @@ function HomeScreen({ onSelectArtist, onSelectCustomBuilder }) {
           }
           
           .landscape-compact-card {
-            min-height: 85px !important;
+            height: 100px !important;
           }
           
           .landscape-compact-card-icon {
