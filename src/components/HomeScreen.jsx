@@ -52,96 +52,6 @@ const ARTISTS = [
 ];
 
 /**
- * Interactive Dots Background Component
- */
-function InteractiveDots({ dotColor = "#3B82F6" }) {
-  const canvasRef = React.useRef(null);
-
-  React.useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    const dpr = window.devicePixelRatio || 1;
-
-    function resize() {
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
-      canvas.style.width = window.innerWidth + "px";
-      canvas.style.height = window.innerHeight + "px";
-      ctx.scale(dpr, dpr);
-    }
-
-    resize();
-
-    const dots = [];
-    const gridSpacing = 30;
-
-    for (let x = gridSpacing / 2; x < window.innerWidth; x += gridSpacing) {
-      for (let y = gridSpacing / 2; y < window.innerHeight; y += gridSpacing) {
-        dots.push({
-          x,
-          y,
-          phase: Math.random() * Math.PI * 2,
-        });
-      }
-    }
-
-    let time = 0;
-    const mouse = { x: -9999, y: -9999 };
-
-    function animate() {
-      time += 0.005;
-      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-
-      const red = parseInt(dotColor.slice(1, 3), 16);
-      const green = parseInt(dotColor.slice(3, 5), 16);
-      const blue = parseInt(dotColor.slice(5, 7), 16);
-
-      dots.forEach((dot) => {
-        const dx = dot.x - mouse.x;
-        const dy = dot.y - mouse.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        const influence = Math.max(0, 1 - distance / 150);
-
-        const size = 2 + influence * 6 + Math.sin(time + dot.phase) * 0.5;
-        const opacity = Math.max(0.3, 0.5 + influence * 0.5);
-
-        ctx.beginPath();
-        ctx.arc(dot.x, dot.y, size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${red}, ${green}, ${blue}, ${opacity})`;
-        ctx.fill();
-      });
-
-      requestAnimationFrame(animate);
-    }
-
-    animate();
-
-    function handleMouseMove(e) {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-    }
-
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("resize", resize);
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("resize", resize);
-    };
-  }, [dotColor]);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 pointer-events-none"
-      style={{ zIndex: 0 }}
-    />
-  );
-}
-
-/**
  * Modern Artist Card Component
  */
 function ArtistCard({ artist, onClick, index }) {
@@ -294,8 +204,7 @@ function HomeScreen({ onSelectArtist, onSelectCustomBuilder }) {
           "linear-gradient(135deg, #0D1B2A 0%, #1B263B 50%, #0a1628 100%)",
       }}
     >
-      {/* Interactive Dots Background */}
-      <InteractiveDots dotColor="#3B82F6" />
+
 
       {/* Radial gradient overlays for depth */}
       <div
