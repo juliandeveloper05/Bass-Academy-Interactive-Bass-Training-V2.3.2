@@ -23,6 +23,7 @@ import React, { useRef, useEffect, useCallback, useState } from 'react';
  * @param {number} props.height - Component height in pixels
  * @param {boolean} props.isPlaying - Whether audio is currently playing
  * @param {boolean} props.interactive - Enable click-to-seek
+ * @param {number} props.audioOffset - Offset in seconds to compensate for recording latency
  * @param {string} props.colorPlayed - Color for played portion
  * @param {string} props.colorUnplayed - Color for unplayed portion
  * @param {string} props.className - Additional CSS classes
@@ -36,6 +37,7 @@ const WaveformVisualizer = ({
   height = 120,
   isPlaying = false,
   interactive = true,
+  audioOffset = 0.5, // Default 0.5s offset to compensate for recording latency
   colorPlayed = 'var(--color-gold)',
   colorUnplayed = 'var(--color-primary-light)',
   className = '',
@@ -231,8 +233,12 @@ const WaveformVisualizer = ({
     const centerY = canvasHeight / 2;
     const maxBarHeight = canvasHeight * 0.8;
 
-    // Progress point
-    const progressX = canvasWidth * progress;
+    // Progress point with offset compensation
+    // The offset accounts for recording latency (time between MediaRecorder start and first audio)
+    const offsetProgress = duration > 0 
+      ? Math.max(0, Math.min(1, progress + (audioOffset / duration)))
+      : progress;
+    const progressX = canvasWidth * offsetProgress;
 
     // Draw bars
     for (let i = 0; i < numBars; i++) {
@@ -275,7 +281,7 @@ const WaveformVisualizer = ({
       ctx.stroke();
       ctx.setLineDash([]);
     }
-  }, [displayData, dimensions, progress, isHovering, hoverPosition, interactive, colorPlayed, colorUnplayed]);
+  }, [displayData, dimensions, progress, duration, audioOffset, isHovering, hoverPosition, interactive, colorPlayed, colorUnplayed]);
 
   // Redraw on changes
   useEffect(() => {
