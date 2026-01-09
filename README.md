@@ -264,21 +264,44 @@ The app will be available at `http://localhost:5173`
 - [ ] Community exercise sharing
 - [ ] Exercise collections/folders
 
+## 💬 Feedback & Contact
+
+We'd love to hear from you! Help us improve Bass Academy:
+
+| Channel | Link |
+|---------|------|
+| 📝 **Feedback Form** | [Submit Feedback](https://forms.gle/zGTSzwywuzvfadHf7) |
+| 📧 **Email** | [contact@bassacademy.dev](mailto:contact@bassacademy.dev) |
+| 🐛 **Report Bug** | [GitHub Issues](https://github.com/juliandeveloper05/Bass-Academy-Interactive-Bass-Training/issues) |
+| 💡 **Feature Request** | [GitHub Discussions](https://github.com/juliandeveloper05/Bass-Academy-Interactive-Bass-Training/discussions) |
+
 ## 🎓 Resources
 
 - [John Patitucci Official](https://johnpatitucci.com/)
 - [Victor Wooten Official](https://victorwooten.com/)
 - [Web Audio API Docs](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
 
-## 📄 License
+## �‍💻 Author
 
-MIT © 2026
+<div align="center">
+
+**Julian Javier Soto** — Senior Software Engineer
+
+[![GitHub](https://img.shields.io/badge/GitHub-juliandeveloper05-181717?style=for-the-badge&logo=github)](https://github.com/juliandeveloper05)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Julian_Soto-0A66C2?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/full-stack-julian-soto/)
+[![Portfolio](https://img.shields.io/badge/Portfolio-juliansoto-C9A554?style=for-the-badge&logo=vercel)](https://juliansoto-portfolio.vercel.app/es)
+
+</div>
+
+## �📄 License
+
+MIT © 2026 Julian Javier Soto
 
 ---
 
 <div align="center">
 
-**Made with ❤️ for bass players**
+**Made with ❤️ for bass players by [Julian Soto](https://github.com/juliandeveloper05)**
 
 **Bass Academy · 2026 · v2.3.1**
 
