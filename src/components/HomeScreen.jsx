@@ -1,8 +1,9 @@
-import React, { useRef, useState, useEffect } from "react";
-import { Sparkles, TrendingUp, Zap, Edit3, Music } from "lucide-react";
+import React, { useRef, useState, useEffect, useCallback, memo } from "react";
+import { Sparkles, Zap, Edit3, Music } from "lucide-react";
+import "./HomeScreen.css";
 
 /**
- * Hook for Magnetic Effect
+ * Hook for Magnetic Effect - Memoized
  */
 function useMagnetic(ref, strength = 30) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -39,58 +40,66 @@ function useMagnetic(ref, strength = 30) {
 }
 
 /**
- * Magnetic Wrapper Component
+ * Magnetic Wrapper Component - Memoized
  */
-function Magnetic({ children, className = "", strength = 20 }) {
+const Magnetic = memo(function Magnetic({ children, className = "", strength = 20 }) {
   const ref = useRef(null);
   const transform = useMagnetic(ref, strength);
 
   return (
     <div 
       ref={ref}
-      className={`${className}`}
+      className={`magnetic-wrapper ${className}`}
       style={{ 
         transform: `translate(${transform.x}px, ${transform.y}px)`,
-        transition: "transform 0.2s cubic-bezier(0.33, 1, 0.68, 1)"
       }}
     >
       {children}
     </div>
   );
-}
+});
 
 /**
- * Floating Music Particles Component
+ * Floating Music Particles Component - Lazy Loaded & Optimized
+ * Reduced from 15 to 8 particles for better performance
  */
-function MusicParticles() {
+const MusicParticles = memo(function MusicParticles() {
   const [particles, setParticles] = useState([]);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Generate static particles on mount to avoid hydration mismatch
-    const newParticles = Array.from({ length: 15 }).map((_, i) => ({
-      id: i,
-      left: `${Math.random() * 100}%`,
-      top: `${Math.random() * 100}%`,
-      animationDuration: `${15 + Math.random() * 20}s`,
-      animationDelay: `-${Math.random() * 20}s`,
-      opacity: 0.1 + Math.random() * 0.2,
-      size: 10 + Math.random() * 20,
-    }));
-    setParticles(newParticles);
+    // Delay particle rendering for faster initial load
+    const timer = setTimeout(() => {
+      const newParticles = Array.from({ length: 8 }).map((_, i) => ({
+        id: i,
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+        animationDuration: `${20 + Math.random() * 15}s`,
+        animationDelay: `-${Math.random() * 15}s`,
+        opacity: 0.08 + Math.random() * 0.12,
+        size: 12 + Math.random() * 16,
+      }));
+      setParticles(newParticles);
+      setIsVisible(true);
+    }, 500); // Delay 500ms after mount
+
+    return () => clearTimeout(timer);
   }, []);
 
+  if (!isVisible) return null;
+
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+    <div className="music-particles-container">
       {particles.map((p) => (
         <div
           key={p.id}
-          className="absolute text-white/10"
+          className="music-particle"
           style={{
             left: p.left,
             top: p.top,
             fontSize: `${p.size}px`,
             opacity: p.opacity,
-            animation: `float-particle ${p.animationDuration} linear infinite`,
+            animationDuration: p.animationDuration,
             animationDelay: p.animationDelay,
           }}
         >
@@ -99,7 +108,7 @@ function MusicParticles() {
       ))}
     </div>
   );
-}
+});
 
 /**
  * Artist data for HomeScreen
@@ -152,14 +161,14 @@ const ARTISTS = [
 ];
 
 /**
- * Modern Artist Card Component
+ * Modern Artist Card Component - Memoized for Performance
  */
-function ArtistCard({ artist, onClick, index }) {
-  const [isHovered, setIsHovered] = React.useState(false);
-  const cardRef = React.useRef(null);
-  const [rotation, setRotation] = React.useState({ x: 0, y: 0 });
+const ArtistCard = memo(function ArtistCard({ artist, onClick }) {
+  const [isHovered, setIsHovered] = useState(false);
+  const cardRef = useRef(null);
+  const [rotation, setRotation] = useState({ x: 0, y: 0 });
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = useCallback((e) => {
     if (!cardRef.current) return;
     const card = cardRef.current;
     const rect = card.getBoundingClientRect();
@@ -168,144 +177,140 @@ function ArtistCard({ artist, onClick, index }) {
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
     
-    // Calculate rotation (max 10 degrees)
-    const rotateX = ((y - centerY) / centerY) * -10;
-    const rotateY = ((x - centerX) / centerX) * 10;
+    // Calculate rotation (max 8 degrees - reduced for performance)
+    const rotateX = ((y - centerY) / centerY) * -8;
+    const rotateY = ((x - centerX) / centerX) * 8;
 
     setRotation({ x: rotateX, y: rotateY });
-  };
+  }, []);
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = useCallback(() => {
     setIsHovered(false);
     setRotation({ x: 0, y: 0 });
-  };
+  }, []);
+
+  const handleMouseEnter = useCallback(() => {
+    setIsHovered(true);
+  }, []);
+
+  const handleClick = useCallback(() => {
+    onClick(artist.id);
+  }, [onClick, artist.id]);
 
   return (
-    <div className="perspective-1000 w-full h-full"> 
+    <div className="artist-card-wrapper">
       <button
         ref={cardRef}
-        className="landscape-compact-card group relative w-full h-full overflow-hidden text-left transition-all duration-300 transform rounded-2xl lg:rounded-3xl
-                   focus:outline-none focus:ring-4 focus:ring-white/30 cursor-rock"
-        onClick={() => onClick(artist.id)}
-        onMouseEnter={() => setIsHovered(true)}
+        className="artist-card-button group"
+        onClick={handleClick}
+        onMouseEnter={handleMouseEnter}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         style={{
-          transform: `perspective(1000px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg) scale(${isHovered ? 1.05 : 1})`,
+          transform: `perspective(1000px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg) scale(${isHovered ? 1.03 : 1})`,
           boxShadow: isHovered
-            ? `0 30px 60px -12px ${artist.accentColor}60, 0 18px 36px -18px ${artist.accentColor}80`
-            : "0 10px 30px -5px rgba(0,0,0,0.5)",
-          minHeight: "380px",
+            ? `0 25px 50px -12px ${artist.accentColor}50, 0 15px 30px -15px ${artist.accentColor}70`
+            : "0 10px 30px -5px rgba(0,0,0,0.4)",
         }}
         aria-label={`Select ${artist.name} exercises`}
       >
-        {/* Artist Image Background */}
+        {/* Artist Image Background - Lazy loaded */}
         <div className="absolute inset-0">
           <img 
             src={artist.image} 
             alt={artist.name}
-            className="w-full h-full object-cover transition-transform duration-700 scale-110 group-hover:scale-100 filter brightness-75 group-hover:brightness-110"
+            loading="lazy"
+            decoding="async"
+            className="artist-card-image"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90 group-hover:opacity-80 transition-opacity duration-500" />
+          <div className="artist-card-gradient" />
         </div>
 
-        {/* Animated gradient overlay */}
-        <div
-          className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0
-                     group-hover:opacity-30 transition-opacity duration-500 mix-blend-overlay"
-        />
-
         {/* Shine effect on hover */}
-        <div
-          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
-          style={{
-            background:
-              "linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%)",
-            backgroundSize: "200% 200%",
-            animation: isHovered ? "shine 1.5s ease-in-out" : "none",
-          }}
-        />
+        <div className={`artist-card-shine ${isHovered ? 'active' : ''}`} />
 
         {/* Content */}
-        <div className="relative p-5 sm:p-6 lg:p-8 z-10 flex flex-col h-full text-white">
+        <div className="artist-card-content">
           {/* Header */}
           <div className="flex justify-between items-start mb-auto">
-             <div className="bg-black/30 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-xs font-bold tracking-widest uppercase">
-                {artist.subtitle}
-             </div>
-            <div
-              className="bg-white/15 backdrop-blur-md p-2 rounded-full opacity-0 
-                         group-hover:opacity-100 transition-all duration-500 border border-white/20
-                         group-hover:rotate-12 transform"
-            >
+            <div className="artist-card-subtitle">
+              {artist.subtitle}
+            </div>
+            <div className="artist-card-sparkle">
               <Sparkles size={18} className="text-white" />
             </div>
           </div>
 
-          {/* Title - Desktop only */}
+          {/* Title */}
           <div className="mt-8">
-            <h3
-              className="text-3xl xl:text-5xl font-bold font-['Playfair_Display'] mb-3 
-                         drop-shadow-lg leading-none tracking-tight transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500"
-            >
+            <h3 className="artist-card-title">
               {artist.name}
             </h3>
             
-            <div className="w-12 h-1 bg-white/50 rounded-full mb-4 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+            <div className="artist-card-divider" />
 
-            <p
-              className="text-white/80 text-sm sm:text-base line-clamp-2
-                        drop-shadow-md font-medium leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100"
-            >
+            <p className="artist-card-description">
               {artist.description}
             </p>
           </div>
 
           {/* Techniques */}
-          <div className="flex flex-wrap gap-2 mt-6 transform translate-y-8 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-200">
+          <div className="artist-card-techniques">
             {artist.techniques.map((tech, i) => (
-              <span
-                key={i}
-                className="text-xs bg-white/10 backdrop-blur-sm px-3 py-1 
-                         rounded-full border border-white/10 font-medium"
-              >
+              <span key={i} className="artist-card-tech-tag">
                 {tech}
               </span>
             ))}
           </div>
 
-             {/* Action indicator */}
-            <div
-            className="absolute bottom-6 right-6 flex items-center gap-2 text-sm font-bold 
-                        opacity-0 group-hover:opacity-100 transition-all duration-500 delay-300
-                        translate-x-4 group-hover:translate-x-0 text-[#C9A554]"
-            >
+          {/* Action indicator */}
+          <div className="artist-card-action">
             <span className="uppercase tracking-widest text-xs">Explore</span>
             <Zap size={18} className="fill-current" />
-            </div>
+          </div>
         </div>
       </button>
     </div>
   );
-}
+});
 
 /**
- * Main HomeScreen Component
+ * Main HomeScreen Component - Optimized for Performance
  */
 function HomeScreen({ onSelectArtist, onSelectCustomBuilder }) {
-  const [mousePos, setMousePos] = React.useState({ x: 0, y: 0 });
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const rafRef = useRef(null);
+  const mousePosRef = useRef({ x: 0, y: 0 });
 
+  // Throttled mouse tracking using requestAnimationFrame
   useEffect(() => {
+    let isUpdating = false;
+
     const updateMousePos = (ev) => {
-      setMousePos({ x: ev.clientX, y: ev.clientY });
+      mousePosRef.current = { x: ev.clientX, y: ev.clientY };
+      
+      if (!isUpdating) {
+        isUpdating = true;
+        rafRef.current = requestAnimationFrame(() => {
+          setMousePos(mousePosRef.current);
+          isUpdating = false;
+        });
+      }
     };
-    window.addEventListener('mousemove', updateMousePos);
+
+    window.addEventListener('mousemove', updateMousePos, { passive: true });
+    
     return () => {
       window.removeEventListener('mousemove', updateMousePos);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
     };
   }, []);
 
-
+  const handleCustomBuilderClick = useCallback(() => {
+    onSelectCustomBuilder();
+  }, [onSelectCustomBuilder]);
 
   return (
     <div
@@ -319,60 +324,34 @@ function HomeScreen({ onSelectArtist, onSelectCustomBuilder }) {
       <div className="grain-overlay" />
       <MusicParticles />
 
-      {/* Radial gradient overlays for depth */}
-      <div
-        className="fixed top-0 right-0 w-[800px] h-[800px] rounded-full opacity-10 pointer-events-none blur-3xl animate-[pulse-glow_8s_ease-in-out_infinite]"
-        style={{
-          background: "radial-gradient(circle, #C9A554 0%, transparent 70%)",
-        }}
-      />
-      <div
-        className="fixed bottom-0 left-0 w-[600px] h-[600px] rounded-full opacity-10 pointer-events-none blur-3xl animate-[pulse-glow_10s_ease-in-out_infinite_reverse]"
-        style={{
-          background: "radial-gradient(circle, #3B82F6 0%, transparent 70%)",
-        }}
-      />
+      {/* Radial gradient overlays - Optimized with reduced blur */}
+      <div className="radial-glow-gold" />
+      <div className="radial-glow-blue" />
 
       {/* Main Content */}
-      <div
-        className="landscape-compact-container relative z-10 min-h-screen flex flex-col items-center justify-center 
-                    p-4 sm:p-6 lg:p-8 animate-[fadeIn_0.8s_ease-out]"
-      >
+      <div className="landscape-compact-container relative z-10 min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
         {/* Header */}
         <header className="landscape-compact-header text-center mb-8 sm:mb-12 lg:mb-16 relative px-4 max-w-5xl mx-auto">
           {/* Logo */}
           <Magnetic strength={30}>
-            <div
-              className="landscape-compact-logo inline-flex items-center justify-center rounded-3xl 
-                          mb-5 sm:mb-7 lg:mb-8 shadow-2xl animate-[float_3s_ease-in-out_infinite] overflow-hidden"
-              style={{
-                boxShadow: "0 20px 60px rgba(201, 165, 84, 0.3)",
-              }}
-            >
+            <div className="logo-container">
               <img
                 src="/logo.png"
                 alt="Bass Academy Logo"
                 className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 object-cover"
+                loading="eager"
               />
             </div>
           </Magnetic>
 
           {/* Main Title */}
-          <h1
-            className="landscape-compact-title home-title font-['Playfair_Display'] text-5xl sm:text-6xl md:text-7xl lg:text-8xl 
-                       font-bold mb-3 sm:mb-4 tracking-tight leading-none
-                       drop-shadow-2xl animate-[fadeIn_1s_ease-out]"
-          >
+          <h1 className="landscape-compact-title home-title font-['Playfair_Display'] text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-3 sm:mb-4 tracking-tight leading-none drop-shadow-2xl">
             <span className="home-title-bass">Bass</span>
             <span className="home-title-academy">Academy</span>
           </h1>
 
           {/* Subtitle */}
-          <div
-            className="landscape-compact-subtitle home-subtitle flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 
-                        text-base sm:text-lg lg:text-xl font-light tracking-[0.2em] 
-                        uppercase mb-2 drop-shadow-lg"
-          >
+          <div className="landscape-compact-subtitle home-subtitle flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-base sm:text-lg lg:text-xl font-light tracking-[0.2em] uppercase mb-2 drop-shadow-lg">
             <span className="font-semibold home-subtitle-text">
               Master the Legends
             </span>
@@ -383,10 +362,7 @@ function HomeScreen({ onSelectArtist, onSelectCustomBuilder }) {
           </div>
 
           {/* Description */}
-          <p
-            className="landscape-compact-description home-description text-sm sm:text-base max-w-2xl mx-auto leading-relaxed
-                      font-['Inter'] drop-shadow-md"
-          >
+          <p className="landscape-compact-description home-description text-sm sm:text-base max-w-2xl mx-auto leading-relaxed font-['Inter'] drop-shadow-md">
             Aprende técnicas de los mejores bajistas del mundo con ejercicios
             interactivos
           </p>
@@ -395,36 +371,28 @@ function HomeScreen({ onSelectArtist, onSelectCustomBuilder }) {
         {/* Custom Builder Highlight Card */}
         <div className="max-w-5xl w-full mb-8 sm:mb-10 px-4 sm:px-6 relative z-10">
           <button
-            onClick={onSelectCustomBuilder}
-            className="custom-builder-card group w-full relative overflow-hidden rounded-2xl lg:rounded-3xl p-5 sm:p-6 lg:p-8
-                     text-left transition-all duration-500 transform hover:scale-[1.02] active:scale-95
-                     focus:outline-none focus:ring-4 focus:ring-[#C9A554]/30 cursor-rock"
+            onClick={handleCustomBuilderClick}
+            className="custom-builder-card group w-full relative overflow-hidden rounded-2xl lg:rounded-3xl p-5 sm:p-6 lg:p-8 text-left transition-all duration-500 transform hover:scale-[1.02] active:scale-95 focus:outline-none focus:ring-4 focus:ring-[#C9A554]/30 cursor-rock"
           >
             {/* Shine effect */}
-            <div
-              className="custom-builder-shine absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
-            />
+            <div className="custom-builder-shine absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
             
             {/* Holographic Wireframe Grid */}
             <div className="holo-wireframe" />
 
             <div className="relative flex items-center gap-4 sm:gap-6">
               {/* Icon */}
-              <div className="custom-builder-icon flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-2xl
-                            flex items-center justify-center
-                            group-hover:scale-110 transition-transform duration-500">
+              <div className="custom-builder-icon flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
                 <Edit3 className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 custom-builder-icon-color" />
               </div>
               
               {/* Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <h3 className="custom-builder-title text-xl sm:text-2xl lg:text-3xl font-bold font-['Playfair_Display']
-                               group-hover:text-[#C9A554] transition-colors">
+                  <h3 className="custom-builder-title text-xl sm:text-2xl lg:text-3xl font-bold font-['Playfair_Display'] group-hover:text-[#C9A554] transition-colors">
                     Custom Builder
                   </h3>
-                  <span className="custom-builder-badge px-2 py-0.5 text-xs font-bold rounded-full
-                                 uppercase tracking-wide">
+                  <span className="custom-builder-badge px-2 py-0.5 text-xs font-bold rounded-full uppercase tracking-wide">
                     New
                   </span>
                 </div>
@@ -434,8 +402,7 @@ function HomeScreen({ onSelectArtist, onSelectCustomBuilder }) {
               </div>
               
               {/* Arrow */}
-              <div className="custom-builder-arrow flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center
-                            group-hover:translate-x-1 transition-all duration-300">
+              <div className="custom-builder-arrow flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center group-hover:translate-x-1 transition-all duration-300">
                 <Zap className="w-5 h-5 custom-builder-zap" />
               </div>
             </div>
@@ -443,240 +410,25 @@ function HomeScreen({ onSelectArtist, onSelectCustomBuilder }) {
         </div>
 
         {/* Artist Grid */}
-        <div
-          className="landscape-compact-grid max-w-7xl w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 
-                      gap-4 sm:gap-5 lg:gap-6 px-4 sm:px-6 relative z-10 mb-8"
-        >
-          {ARTISTS.map((artist, index) => (
-            <div
-              key={artist.id}
-              className="opacity-0 animate-[fadeInUp_0.8s_ease-out_forwards]"
-              style={{ animationDelay: `${0.2 + index * 0.1}s` }}
-            >
+        <div className="artist-grid-container landscape-compact-grid max-w-7xl w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6 px-4 sm:px-6 relative z-10 mb-8">
+          {ARTISTS.map((artist) => (
+            <div key={artist.id} className="artist-card-animate">
               <ArtistCard
                 artist={artist}
                 onClick={onSelectArtist}
-                index={index}
               />
             </div>
           ))}
         </div>
 
         {/* Footer hint */}
-        <footer
-          className="landscape-compact-footer mt-8 sm:mt-10 text-white/40 text-xs sm:text-sm px-4 text-center 
-                         relative z-10 font-['Inter'] animate-[fadeIn_1.5s_ease-out]"
-        >
+        <footer className="landscape-compact-footer mt-8 sm:mt-10 text-white/40 text-xs sm:text-sm px-4 text-center relative z-10 font-['Inter']">
           Selecciona un artista para comenzar tu entrenamiento profesional
         </footer>
       </div>
-
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-15px); }
-        }
-        
-        @keyframes shine {
-          0% { background-position: -200% center; }
-          100% { background-position: 200% center; }
-        }
-        
-        @keyframes float-particle {
-          0% {
-            transform: translateY(100vh) rotate(0deg);
-          }
-          100% {
-            transform: translateY(-20vh) rotate(360deg);
-          }
-        }
-        
-        /* Global Spotlight */
-        .spotlight-overlay {
-          background: radial-gradient(
-            600px circle at var(--mouse-x) var(--mouse-y),
-            rgba(255, 255, 255, 0.06),
-            transparent 40%
-          );
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          pointer-events: none;
-          z-index: 2; /* Content is at z-10, this should be below content but above bg */
-        }
-        
-        /* Holographic Wireframe */
-        .holo-wireframe {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%) perspective(1000px) rotateX(60deg) scale(0.8);
-          width: 200%;
-          height: 200%;
-          background-image: 
-            linear-gradient(rgba(201, 165, 84, 0.3) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(201, 165, 84, 0.3) 1px, transparent 1px);
-          background-size: 40px 40px;
-          border-radius: 50%;
-          opacity: 0;
-          transition: all 0.5s ease;
-          pointer-events: none;
-          z-index: 0;
-          mask-image: radial-gradient(circle, black 30%, transparent 70%);
-          -webkit-mask-image: radial-gradient(circle, black 30%, transparent 70%);
-        }
-        
-        .custom-builder-card:hover .holo-wireframe {
-          opacity: 1;
-          transform: translate(-50%, -40%) perspective(1000px) rotateX(45deg) scale(1.2);
-          animation: holo-grid-scroll 20s linear infinite;
-        }
-        
-        @keyframes holo-grid-scroll {
-          0% { background-position: 0 0; }
-          100% { background-position: 0 1000px; }
-        }
-        
-        /* Mobile Landscape Optimizations */
-        @media (max-height: 500px) and (orientation: landscape) {
-          .landscape-compact-container {
-            padding: 0.5rem 1rem !important;
-            min-height: 100vh;
-            justify-content: flex-start !important;
-          }
-          
-          .landscape-compact-header {
-            margin-bottom: 0.5rem !important;
-            padding-top: 0.25rem !important;
-          }
-          
-          .landscape-compact-logo {
-            padding: 0.5rem !important;
-            margin-bottom: 0.5rem !important;
-          }
-          
-          .landscape-compact-logo svg {
-            width: 24px !important;
-            height: 24px !important;
-          }
-          
-          .landscape-compact-title {
-            font-size: 1.75rem !important;
-            margin-bottom: 0.25rem !important;
-          }
-          
-          .landscape-compact-subtitle {
-            font-size: 0.65rem !important;
-            letter-spacing: 0.1em !important;
-            margin-bottom: 0.125rem !important;
-          }
-          
-          .landscape-compact-description {
-            display: none !important;
-          }
-          
-          .landscape-compact-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
-            gap: 0.5rem !important;
-            padding: 0 0.5rem !important;
-            margin-bottom: 0.5rem !important;
-          }
-          
-          .landscape-compact-card {
-            min-height: 100px !important;
-          }
-          
-          .landscape-compact-card > div:last-child {
-            padding: 0.75rem !important;
-            min-height: 100px !important;
-          }
-          
-          .landscape-compact-card-icon {
-            font-size: 1.5rem !important;
-            padding: 0.375rem !important;
-          }
-          
-          .landscape-compact-card-title {
-            font-size: 0.875rem !important;
-          }
-          
-          .landscape-compact-card-subtitle {
-            font-size: 0.6rem !important;
-          }
-          
-          .landscape-compact-card-desc {
-            display: none !important;
-          }
-          
-          .landscape-compact-tech {
-            font-size: 0.55rem !important;
-            padding: 0.25rem 0.5rem !important;
-          }
-          
-          .landscape-compact-footer {
-            display: none !important;
-          }
-          
-          /* Hide radial gradient overlays in landscape */
-          .fixed.top-0.right-0.w-\\[800px\\],
-          .fixed.bottom-0.left-0.w-\\[600px\\] {
-            opacity: 0.05 !important;
-          }
-        }
-        
-        /* Very small landscape screens */
-        @media (max-height: 400px) and (orientation: landscape) {
-          .landscape-compact-container {
-            padding: 0.25rem 0.75rem !important;
-          }
-          
-          .landscape-compact-header {
-            margin-bottom: 0.25rem !important;
-          }
-          
-          .landscape-compact-logo {
-            padding: 0.375rem !important;
-            margin-bottom: 0.25rem !important;
-          }
-          
-          .landscape-compact-title {
-            font-size: 1.5rem !important;
-          }
-          
-          .landscape-compact-grid {
-            gap: 0.375rem !important;
-          }
-          
-          .landscape-compact-card {
-            min-height: 85px !important;
-          }
-          
-          .landscape-compact-card-icon {
-            font-size: 1.25rem !important;
-            padding: 0.25rem !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }
 
 export default HomeScreen;
+
