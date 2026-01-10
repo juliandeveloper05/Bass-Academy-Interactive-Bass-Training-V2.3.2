@@ -374,7 +374,7 @@ const BassTrainer = ({ selectedCategory, customExerciseConfig, onBack }) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isPlaying, isCountingDown, handlePlay, handleStop]);
 
-  // Broadcast state to popout window
+  // Broadcast FULL state to popout (only when exercise/settings change, not every note)
   useEffect(() => {
     if (!isPopoutOpen) return;
     
@@ -382,7 +382,6 @@ const BassTrainer = ({ selectedCategory, customExerciseConfig, onBack }) => {
       isPlaying,
       isCountingDown,
       tempo,
-      currentNoteIndex,
       tabData,
       headerInfo,
       selectedRoot,
@@ -392,13 +391,13 @@ const BassTrainer = ({ selectedCategory, customExerciseConfig, onBack }) => {
       theme,
       isMetronomeEnabled,
       isLooping,
+      // Note: currentNoteIndex is sent separately with throttling
     });
   }, [
     isPopoutOpen,
     isPlaying,
     isCountingDown,
     tempo,
-    currentNoteIndex,
     tabData,
     headerInfo,
     selectedRoot,
@@ -410,6 +409,19 @@ const BassTrainer = ({ selectedCategory, customExerciseConfig, onBack }) => {
     isLooping,
     sendState,
   ]);
+
+  // Broadcast note index with throttling (max ~15fps to prevent lag)
+  const lastNoteUpdateRef = useRef(0);
+  useEffect(() => {
+    if (!isPopoutOpen || currentNoteIndex < 0) return;
+    
+    const now = Date.now();
+    // Throttle to max 15 updates per second (66ms between updates)
+    if (now - lastNoteUpdateRef.current < 66) return;
+    
+    lastNoteUpdateRef.current = now;
+    sendState({ currentNoteIndex });
+  }, [isPopoutOpen, currentNoteIndex, sendState]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-start py-3 sm:py-5 md:py-8 px-3 sm:px-4 md:px-6 font-[var(--font-body)]">
