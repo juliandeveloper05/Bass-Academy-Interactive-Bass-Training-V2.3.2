@@ -92,3 +92,17 @@ export const SAMPLE_CONFIG = {
     tripletVolume: 0.2,
   },
 };
+
+// ============================================
+// LATENCY CALIBRATION CONFIGURATION
+// ============================================
+
+export const LATENCY_CONFIG = {
+  storageKey: 'bass-academy-latency-v1',
+  defaultOffsetMs: 0,
+  minOffsetMs: -200,
+  maxOffsetMs: 200,
+  calibrationClicks: 8,       // Number of taps for calibration
+  calibrationIntervalMs: 1000, // Time between calibration clicks
+  warmupClicks: 2,            // Discard first N taps (reaction time stabilization)
+};

@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { Music, AlertCircle, Guitar, List, ArrowLeft, Maximize2, BarChart2 } from "lucide-react";
+import { Music, AlertCircle, Guitar, List, ArrowLeft, Maximize2, BarChart2, Sliders } from "lucide-react";
 
 // Components - Layout
 import Header from "./components/layout/Header.jsx";
@@ -36,6 +36,7 @@ import { useAudioScheduler } from "./hooks/useAudioScheduler.js";
 import { usePWA } from "./hooks/usePWA.js";
 import { usePracticeStats } from "./hooks/usePracticeStats.js";
 import { useHapticFeedback } from "./hooks/useHapticFeedback.js";
+import { useLatencyCalibration } from "./hooks/useLatencyCalibration.js";
 
 // Config
 import { THEME_CONFIG, COUNTDOWN_CONFIG, VIEW_MODES } from "./config/uiConfig.js";
@@ -54,6 +55,9 @@ import { generateCustomTabData } from "./data/customExerciseLibrary.js";
 
 // Stats
 import StatsModal from "./components/stats/StatsModal.jsx";
+
+// Latency Calibration
+import LatencyCalibrationModal from "./components/ui/LatencyCalibrationModal.jsx";
 
 // Recording Feature
 import RecordingButton from "./components/recording/RecordingButton.jsx";
@@ -89,6 +93,10 @@ const BassTrainer = ({ selectedCategory, customExerciseConfig, onBack }) => {
   
   // Practice Stats Hook
   const { stats, formatTime } = usePracticeStats(playerState.isPlaying);
+  
+  // Latency Calibration Hook
+  const latencyCalibration = useLatencyCalibration();
+  const [isLatencyModalOpen, setIsLatencyModalOpen] = useState(false);
   
   // Recording Hooks
   const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
@@ -224,7 +232,14 @@ const BassTrainer = ({ selectedCategory, customExerciseConfig, onBack }) => {
     return getHeaderInfo(selectedPattern, secondPattern);
   }, [selectedPattern, secondPattern, exerciseState.isCustom, exerciseState.customData]);
 
-  const scheduler = useAudioScheduler({ audio, notes: tabData, playerState, actions, onLoopRestart: vibrateLoopRestart });
+  const scheduler = useAudioScheduler({ 
+    audio, 
+    notes: tabData, 
+    playerState, 
+    actions, 
+    onLoopRestart: vibrateLoopRestart,
+    latencyOffsetMs: latencyCalibration.latencyOffsetMs,
+  });
 
   const handlePlay = useCallback(async () => {
     await audio.resume();
@@ -326,14 +341,31 @@ const BassTrainer = ({ selectedCategory, customExerciseConfig, onBack }) => {
           </button>
           
           {/* Stats Button */}
-          <button 
-            onClick={() => setIsStatsOpen(true)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full glass border border-[var(--color-primary-medium)] text-[var(--color-gold)] hover:bg-[var(--color-primary-medium)] transition-all"
-            aria-label="View practice statistics"
-          >
-            <BarChart2 size={16} />
-            <span className="text-xs font-bold uppercase tracking-wider hidden sm:inline">Stats</span>
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Latency Calibration Button */}
+            <button 
+              onClick={() => setIsLatencyModalOpen(true)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full glass border border-[var(--color-primary-medium)] text-[var(--color-primary-light)] hover:text-[var(--color-gold)] hover:bg-[var(--color-primary-medium)] transition-all"
+              aria-label="Calibrar latencia de audio"
+              title={`Latencia: ${latencyCalibration.latencyOffsetMs}ms`}
+            >
+              <Sliders size={16} />
+              {latencyCalibration.latencyOffsetMs !== 0 && (
+                <span className="text-[10px] font-mono text-[var(--color-gold)]">
+                  {latencyCalibration.latencyOffsetMs}ms
+                </span>
+              )}
+            </button>
+            
+            <button 
+              onClick={() => setIsStatsOpen(true)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full glass border border-[var(--color-primary-medium)] text-[var(--color-gold)] hover:bg-[var(--color-primary-medium)] transition-all"
+              aria-label="View practice statistics"
+            >
+              <BarChart2 size={16} />
+              <span className="text-xs font-bold uppercase tracking-wider hidden sm:inline">Stats</span>
+            </button>
+          </div>
         </div>
 
         <Header headerInfo={headerInfo} isPlaying={isPlaying} isCountingDown={isCountingDown} theme={theme} onThemeChange={handleThemeChange} />
@@ -415,6 +447,23 @@ const BassTrainer = ({ selectedCategory, customExerciseConfig, onBack }) => {
         onClose={() => setIsStatsOpen(false)} 
         stats={stats}
         formatTime={formatTime}
+      />
+
+      {/* Latency Calibration Modal */}
+      <LatencyCalibrationModal
+        isOpen={isLatencyModalOpen}
+        onClose={() => setIsLatencyModalOpen(false)}
+        isCalibrating={latencyCalibration.isCalibrating}
+        isComplete={latencyCalibration.isComplete}
+        currentClick={latencyCalibration.currentClick}
+        totalClicks={latencyCalibration.totalClicks}
+        calculatedOffset={latencyCalibration.calculatedOffset}
+        latencyOffsetMs={latencyCalibration.latencyOffsetMs}
+        onStartCalibration={latencyCalibration.startCalibration}
+        onRecordTap={latencyCalibration.recordTap}
+        onApplyCalibration={latencyCalibration.applyCalibration}
+        onCancelCalibration={latencyCalibration.cancelCalibration}
+        onResetLatency={latencyCalibration.resetLatency}
       />
 
       {/* Fullscreen Tablature Mode */}

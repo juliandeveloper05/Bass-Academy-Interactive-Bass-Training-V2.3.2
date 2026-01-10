@@ -13,6 +13,7 @@ export function useAudioScheduler({
   playerState,
   actions,
   onLoopRestart,
+  latencyOffsetMs = 0,
 }) {
   // Refs for mutable values (avoid stale closures)
   const nextNoteTimeRef = useRef(0);
@@ -52,9 +53,10 @@ export function useAudioScheduler({
     // Play metronome click with current metronome volume
     audio.playMetronomeClick(time, isDownbeat, isFirstNoteOfBeat, state.isMetronomeEnabled, state.metronomeVolume);
     
-    // Schedule visual update
+    // Schedule visual update with latency compensation
     const currentTime = audio.getCurrentTime();
-    const delay = Math.max(0, (time - currentTime) * 1000);
+    // Subtract latency offset to show visual earlier (compensate for audio delay)
+    const delay = Math.max(0, (time - currentTime) * 1000 - latencyOffsetMs);
     
     setTimeout(() => {
       if (stateRef.current.isPlaying) {
