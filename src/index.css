@@ -829,3 +829,128 @@ body {
     box-shadow: 0 0 4px var(--color-gold);
   }
 }
+
+/* ============================================
+   LOOP MODE EXTENDED STYLES
+   CSS Variables, Animations & Accessibility
+   ============================================ */
+
+:root {
+  /* Loop Mode CSS Variables */
+  --loop-playhead-width: 3px;
+  --loop-playhead-glow: 0 0 12px var(--color-gold), 0 0 24px var(--color-gold);
+  --loop-beat-highlight-bg: rgba(201, 165, 84, 0.2);
+  --loop-restart-flash-duration: 150ms;
+  --loop-grid-tick-color: var(--color-primary-light);
+  --loop-grid-downbeat-color: var(--color-gold);
+}
+
+/* Practice theme overrides for loop mode */
+[data-theme="practice"] {
+  --loop-playhead-glow: 0 0 16px var(--color-gold), 0 0 32px var(--color-gold);
+  --loop-beat-highlight-bg: rgba(255, 215, 0, 0.3);
+}
+
+/* Beat highlight animation */
+@keyframes loop-beat-highlight {
+  0% {
+    background-color: transparent;
+    transform: scale(1);
+  }
+  50% {
+    background-color: var(--loop-beat-highlight-bg);
+    transform: scale(1.05);
+  }
+  100% {
+    background-color: transparent;
+    transform: scale(1);
+  }
+}
+
+.loop-beat-active {
+  animation: loop-beat-highlight 200ms ease-out;
+}
+
+/* Loop restart flash animation */
+@keyframes loop-restart-flash {
+  0% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.loop-restart-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--color-gold) 0%, transparent 100%);
+  pointer-events: none;
+  animation: loop-restart-flash var(--loop-restart-flash-duration) ease-out forwards;
+}
+
+/* Grid tick animations */
+@keyframes loop-tick-pulse {
+  0%, 100% {
+    transform: scaleY(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scaleY(1.3);
+    opacity: 1;
+  }
+}
+
+.loop-tick-active {
+  animation: loop-tick-pulse 150ms ease-out;
+}
+
+/* Playhead smooth glow */
+.loop-playhead {
+  width: var(--loop-playhead-width);
+  box-shadow: var(--loop-playhead-glow);
+  transition: left 16ms linear;
+}
+
+/* Accessibility: Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Reduce motion - Extended Loop Mode */
+@media (prefers-reduced-motion: reduce) {
+  .loop-beat-active,
+  .loop-restart-overlay,
+  .loop-tick-active {
+    animation: none !important;
+  }
+  
+  .loop-playhead {
+    transition: none;
+    box-shadow: 0 0 4px var(--color-gold);
+  }
+  
+  .loop-restart-overlay {
+    display: none;
+  }
+}
+
+/* Power saving - Loop Mode optimizations */
+[data-power-saving="true"] .loop-playhead {
+  box-shadow: 0 0 4px var(--color-gold) !important;
+  transition: none !important;
+}
+
+[data-power-saving="true"] .loop-beat-active,
+[data-power-saving="true"] .loop-restart-overlay,
+[data-power-saving="true"] .loop-tick-active {
+  animation: none !important;
+}

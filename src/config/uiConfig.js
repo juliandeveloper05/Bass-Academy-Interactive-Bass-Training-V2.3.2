@@ -57,3 +57,48 @@ export const POPOUT_CONFIG = {
   features: 'toolbar=no,location=no,status=no,menubar=no,resizable=yes,scrollbars=yes',
 };
 
+// Loop Mode Pedagogical Presets
+export const LOOP_PRESETS = {
+  beginner: {
+    id: 'beginner',
+    name: 'Principiante',
+    icon: '🌱',
+    tempo: 60,
+    loopLength: 1,
+    subdivision: 'quarter',
+    description: 'Tempo lento, 1 compás, negras. Ideal para empezar.',
+  },
+  intermediate: {
+    id: 'intermediate',
+    name: 'Intermedio',
+    icon: '🎵',
+    tempo: 80,
+    loopLength: 2,
+    subdivision: 'eighth',
+    description: 'Tempo moderado, 2 compases, corcheas.',
+  },
+  advanced: {
+    id: 'advanced',
+    name: 'Avanzado',
+    icon: '🔥',
+    tempo: 100,
+    loopLength: 4,
+    subdivision: 'triplet',
+    description: 'Tempo rápido, 4 compases, tresillos.',
+  },
+  custom: {
+    id: 'custom',
+    name: 'Personalizado',
+    icon: '⚙️',
+    tempo: null, // User-defined
+    loopLength: null,
+    subdivision: null,
+    description: 'Configura tus propios ajustes.',
+  },
+};
+
+// Loop Analytics Configuration
+export const LOOP_ANALYTICS_CONFIG = {
+  storageKey: 'bass-trainer-loop-analytics',
+  maxSessionHistory: 30, // Keep last 30 sessions
+};

@@ -1,18 +1,22 @@
 /**
  * LoopModeWrapper Component - Loop Mode
  * Main container for the loop practice view
+ * Enhanced with settings modal, power saving, and accessibility
  */
 
-import React, { useState, useCallback } from 'react';
-import { RepeatIcon, Music } from 'lucide-react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { RepeatIcon, Settings } from 'lucide-react';
 
 import LoopMeasure from './LoopMeasure.jsx';
 import LoopGrid from './LoopGrid.jsx';
 import Playhead from './Playhead.jsx';
 import LoopControls from './LoopControls.jsx';
+import LoopSettingsModal from './LoopSettingsModal.jsx';
 import { useLoopMode } from '../../hooks/useLoopMode.js';
 import { LOOP_MODE_CONFIG, RHYTHM_CONFIG } from '../../config/uiConfig.js';
 import { useHapticFeedback } from '../../hooks/useHapticFeedback.js';
+import { usePowerSaving } from '../../hooks/usePowerSaving.js';
+import { loopAnalyticsService } from '../../services/LoopAnalyticsService.js';
 
 /**
  * @param {Object} props
@@ -23,6 +27,7 @@ import { useHapticFeedback } from '../../hooks/useHapticFeedback.js';
  * @param {boolean} props.isPlaying - Playback state
  * @param {Function} props.onPlay - Start playback callback
  * @param {Function} props.onStop - Stop playback callback
+ * @param {Function} props.onTempoChange - Callback to change tempo
  */
 export default function LoopModeWrapper({
   tabData = [],
@@ -32,12 +37,31 @@ export default function LoopModeWrapper({
   isPlaying = false,
   onPlay,
   onStop,
+  onTempoChange,
 }) {
   // Local state for loop settings
   const [loopLength, setLoopLength] = useState(LOOP_MODE_CONFIG.defaultLoopLength);
   const [subdivision, setSubdivision] = useState(LOOP_MODE_CONFIG.defaultSubdivision);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [showRestartFlash, setShowRestartFlash] = useState(false);
   
   const { vibrateLoopRestart } = useHapticFeedback();
+  const { isPowerSaving } = usePowerSaving();
+  
+  // Handle loop restart with analytics and visual feedback
+  const handleLoopRestart = useCallback(() => {
+    vibrateLoopRestart();
+    
+    // Record loop completion for analytics
+    const loopDurationSeconds = (60 / tempo) * RHYTHM_CONFIG.beatsPerMeasure * loopLength;
+    loopAnalyticsService.recordLoopComplete(loopDurationSeconds);
+    
+    // Show restart flash animation (skip if power saving)
+    if (!isPowerSaving) {
+      setShowRestartFlash(true);
+      setTimeout(() => setShowRestartFlash(false), 200);
+    }
+  }, [vibrateLoopRestart, tempo, loopLength, isPowerSaving]);
   
   // Loop mode hook for playhead animation
   const {
@@ -49,8 +73,18 @@ export default function LoopModeWrapper({
     tempo,
     loopLength,
     isPlaying,
-    onLoopRestart: vibrateLoopRestart,
+    onLoopRestart: handleLoopRestart,
+    isPowerSaving,
   });
+  
+  // Track session start/end
+  useEffect(() => {
+    if (isPlaying) {
+      loopAnalyticsService.startSession();
+    } else {
+      loopAnalyticsService.endSession();
+    }
+  }, [isPlaying]);
 
   // Calculate current beat for grid highlighting
   const currentBeat = Math.floor(
@@ -68,9 +102,27 @@ export default function LoopModeWrapper({
   const handleSubdivisionChange = useCallback((newSub) => {
     setSubdivision(newSub);
   }, []);
+  
+  // Handle preset application from settings modal
+  const handleApplyPreset = useCallback((preset) => {
+    if (preset.tempo && onTempoChange) {
+      onTempoChange(preset.tempo);
+    }
+    if (preset.loopLength) {
+      setLoopLength(preset.loopLength);
+    }
+    if (preset.subdivision) {
+      setSubdivision(preset.subdivision);
+    }
+  }, [onTempoChange]);
 
   return (
-    <div className="w-full animate-fadeInUp">
+    <div 
+      className="w-full animate-fadeInUp"
+      role="region"
+      aria-label="Loop Practice Mode"
+      data-power-saving={isPowerSaving}
+    >
       {/* Header */}
       <div className="bg-[var(--color-primary-dark)]/50 px-4 sm:px-6 py-3 border-b border-[var(--color-primary-medium)]/30 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -87,14 +139,37 @@ export default function LoopModeWrapper({
           </div>
         </div>
         
-        {/* Loop duration indicator */}
-        <div className="text-xs text-[var(--color-primary-light)] font-mono">
-          {loopDuration.toFixed(1)}s loop
+        <div className="flex items-center gap-3">
+          {/* Loop duration indicator */}
+          <div className="text-xs text-[var(--color-primary-light)] font-mono">
+            {loopDuration.toFixed(1)}s loop
+          </div>
+          
+          {/* Settings button */}
+          <button
+            onClick={() => setIsSettingsOpen(true)}
+            disabled={isPlaying}
+            className={`
+              p-2 rounded-lg transition-all
+              ${isPlaying 
+                ? 'opacity-50 cursor-not-allowed' 
+                : 'hover:bg-[var(--color-primary-medium)] active:scale-95'
+              }
+            `}
+            aria-label="Loop Settings"
+          >
+            <Settings className="w-5 h-5 text-[var(--color-primary-light)]" />
+          </button>
         </div>
       </div>
       
       {/* Main loop visualization */}
       <div className="relative p-4 sm:p-6 md:p-8">
+        {/* Restart flash overlay */}
+        {showRestartFlash && (
+          <div className="loop-restart-overlay" aria-hidden="true" />
+        )}
+        
         {/* Staff with notes */}
         <div className="relative">
           <LoopMeasure
@@ -141,6 +216,16 @@ export default function LoopModeWrapper({
           <span className="opacity-60">para iniciar el loop</span>
         </div>
       )}
+      
+      {/* Settings Modal */}
+      <LoopSettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        currentTempo={tempo}
+        currentLoopLength={loopLength}
+        currentSubdivision={subdivision}
+        onApplyPreset={handleApplyPreset}
+      />
     </div>
   );
 }

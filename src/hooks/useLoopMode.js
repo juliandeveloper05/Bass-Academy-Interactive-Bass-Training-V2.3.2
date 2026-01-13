@@ -4,10 +4,11 @@
  * synced to audioContext.currentTime for drift-free animation
  * 
  * FIXED: Uses refs to avoid stale closures and dependency cycles
+ * ENHANCED: Supports power saving mode with reduced FPS
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { RHYTHM_CONFIG, LOOP_MODE_CONFIG } from '../config/uiConfig.js';
+import { RHYTHM_CONFIG, LOOP_MODE_CONFIG, POWER_SAVING_CONFIG } from '../config/uiConfig.js';
 
 /**
  * @param {Object} options
@@ -16,6 +17,7 @@ import { RHYTHM_CONFIG, LOOP_MODE_CONFIG } from '../config/uiConfig.js';
  * @param {number} options.loopLength - Number of measures to loop (1, 2, or 4)
  * @param {boolean} options.isPlaying - Whether playback is active
  * @param {Function} options.onLoopRestart - Callback when loop restarts
+ * @param {boolean} options.isPowerSaving - Whether power saving mode is active
  */
 export function useLoopMode({ 
   scheduler, 
@@ -23,6 +25,7 @@ export function useLoopMode({
   loopLength = LOOP_MODE_CONFIG.defaultLoopLength,
   isPlaying = false,
   onLoopRestart,
+  isPowerSaving = false,
 }) {
   // Playhead position 0..1 within the current loop
   const [playhead, setPlayhead] = useState(0);
@@ -35,12 +38,14 @@ export function useLoopMode({
   const startTimeRef = useRef(null);
   const lastLoopCountRef = useRef(0);
   const playheadRef = useRef(0);
+  const lastUpdateTimeRef = useRef(0); // For power saving throttle
   
   // Refs to hold current values (avoids stale closure issues)
   const schedulerRef = useRef(scheduler);
   const tempoRef = useRef(tempo);
   const loopLengthRef = useRef(loopLength);
   const onLoopRestartRef = useRef(onLoopRestart);
+  const isPowerSavingRef = useRef(isPowerSaving);
   
   // Keep refs in sync with props
   useEffect(() => {
@@ -58,6 +63,10 @@ export function useLoopMode({
   useEffect(() => {
     onLoopRestartRef.current = onLoopRestart;
   }, [onLoopRestart]);
+  
+  useEffect(() => {
+    isPowerSavingRef.current = isPowerSaving;
+  }, [isPowerSaving]);
 
   // Calculate loop duration in seconds
   const getLoopDuration = useCallback(() => {
@@ -75,12 +84,23 @@ export function useLoopMode({
       rafRef.current = requestAnimationFrame(tick);
       return;
     }
+    
+    // Power saving: throttle updates to ~10 FPS
+    const perfNow = performance.now();
+    if (isPowerSavingRef.current) {
+      const timeSinceLastUpdate = perfNow - lastUpdateTimeRef.current;
+      if (timeSinceLastUpdate < POWER_SAVING_CONFIG.rafThrottleMs) {
+        rafRef.current = requestAnimationFrame(tick);
+        return;
+      }
+      lastUpdateTimeRef.current = perfNow;
+    }
 
-    const now = audioContext.currentTime;
+    const audioTime = audioContext.currentTime;
     const currentTempo = tempoRef.current;
     const currentLoopLength = loopLengthRef.current;
     const loopDuration = (60 / currentTempo) * RHYTHM_CONFIG.beatsPerMeasure * currentLoopLength;
-    const elapsed = now - startTimeRef.current;
+    const elapsed = audioTime - startTimeRef.current;
     
     // Handle negative elapsed time (before start)
     if (elapsed < 0) {
